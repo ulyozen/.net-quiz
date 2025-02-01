@@ -4,6 +4,7 @@ using Quiz.Persistence.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 Env.Load();
+
 builder.Configuration.AddEnvironmentVariables();
 builder.Services.AddEnvironmentVariables(builder.Configuration);
 
