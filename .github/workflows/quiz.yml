@@ -22,5 +22,5 @@ jobs:
       - name: Build and push Docker image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/quiz-net .
-          docker tag ${{ secrets.DOCKER_USERNAME }}/quiz-net:latest
+          docker tag ${{ secrets.DOCKER_USERNAME }}/quiz-net:latest ${{ secrets.DOCKER_USERNAME }}/quiz-net:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/quiz-net:latest      
