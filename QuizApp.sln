@@ -12,6 +12,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "solution-items", "solution-
 		Dockerfile = Dockerfile
 		.dockerignore = .dockerignore
 		CODE_OF_CONDUCT.md = CODE_OF_CONDUCT.md
+		compose.yaml = compose.yaml
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{BCEE0E70-384D-4BB9-A7AD-170B97CBAF7F}"
