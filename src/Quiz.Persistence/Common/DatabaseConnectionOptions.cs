@@ -1,4 +1,4 @@
-namespace Quiz.Persistence.Context;
+namespace Quiz.Persistence.Common;
 
 public class DatabaseConnectionOptions
 {
