@@ -49,6 +49,8 @@ public static class ServiceCollectionExtensions
             cfg.Secret = GetEnvironmentVariable(configuration, "JWT_SECRET");
             cfg.Issuer = GetEnvironmentVariable(configuration, "JWT_ISSUER");
             cfg.Audience = GetEnvironmentVariable(configuration, "JWT_AUDIENCE");
+            cfg.AccessTokenExpiryMinutes = GetEnvironmentVariable(configuration, "AccessTokenExpiryMinutes");
+            cfg.RefreshTokenExpiryDays = GetEnvironmentVariable(configuration, "AccessTokenExpiryMinutes");
         });
         
         return services;

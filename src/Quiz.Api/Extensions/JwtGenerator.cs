@@ -17,7 +17,7 @@ public class JwtGenerator(IOptions<JwtOptions> options) : IJwtGenerator
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Secret!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var tokenExpires = DateTime.UtcNow.AddMinutes(options.Value.AccessTokenExpiryMinutes);
+        var tokenExpires = DateTime.UtcNow.AddMinutes(double.Parse(options.Value.AccessTokenExpiryMinutes!));
         var exp = new DateTimeOffset(tokenExpires).ToUnixTimeSeconds().ToString();
         
         var claims = new List<Claim>
