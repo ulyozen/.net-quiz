@@ -8,7 +8,7 @@ public class JwtOptions
     
     public string? Audience { get; set; }
     
-    public int AccessTokenExpiryMinutes { get; set; } = 30;
+    public string? AccessTokenExpiryMinutes { get; set; }
     
-    public int RefreshTokenExpiryDays { get; set; } = 7;
+    public string? RefreshTokenExpiryDays { get; set; }
 }
