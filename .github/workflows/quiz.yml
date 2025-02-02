@@ -44,7 +44,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           source: "compose.yaml"
-          target: "/app"
+          target: "~/app"
       
       - name: Connect to server and deploy using docker compose file
         uses: appleboy/ssh-action@v1.2.0
