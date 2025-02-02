@@ -53,7 +53,7 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           script: |
-            cd /app
+            cd ~/app
             docker compose pull
             docker compose up -d --force-recreate
             docker system prune -f
