@@ -18,6 +18,7 @@ builder.Services
     .AddJwtSupport()
     .AddDbSettings()
     .AddCorsSupport()
+    .AddMediatrAndFluentValidation()
     .AddIdentityService();
 
 var app = builder.Build();

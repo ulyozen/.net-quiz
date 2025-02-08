@@ -16,14 +16,19 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationExtension(this IServiceCollection services)
     {
-        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(IAssemblyReference).Assembly));
-        services.AddValidatorsFromAssemblyContaining<IAssemblyReference>();
-        
         services.AddScoped<IAuthRepository, AuthRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IJwtGenerator, JwtGenerator>();
         
         // services.AddTransient<BlockedUserMiddleware>();
+        
+        return services;
+    }
+
+    public static IServiceCollection AddMediatrAndFluentValidation(this IServiceCollection services)
+    {
+        services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(IAssemblyReference).Assembly));
+        services.AddValidatorsFromAssemblyContaining<IAssemblyReference>();
         
         return services;
     }
