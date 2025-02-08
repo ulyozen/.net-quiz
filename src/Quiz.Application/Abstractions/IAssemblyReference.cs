@@ -1,4 +1,4 @@
-namespace Quiz.Application.Common;
+namespace Quiz.Application.Abstractions;
 
 /// <summary>
 /// Marker interface for assembly reference in DI configuration.
