@@ -18,17 +18,13 @@ public class JwtGenerator(IOptions<JwtOptions> options) : IJwtGenerator
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Secret!));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
         var tokenExpires = DateTime.UtcNow.AddMinutes(double.Parse(options.Value.AccessTokenExpiryMinutes!));
-        var exp = new DateTimeOffset(tokenExpires).ToUnixTimeSeconds().ToString();
         
         var claims = new List<Claim>
         {
             new (JwtRegisteredClaimNames.Sub, user.Id!),
-            new (JwtRegisteredClaimNames.Exp, exp),
             new (JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUniversalTime().ToString()),
-            new (JwtRegisteredClaimNames.Iss, options.Value.Issuer!),
-            new (JwtRegisteredClaimNames.Aud, options.Value.Audience!),
             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new (ClaimTypes.Role, user.Role!)
+            new ("role", user.Role!)
         };
         
         var token = new JwtSecurityToken(
@@ -41,6 +37,7 @@ public class JwtGenerator(IOptions<JwtOptions> options) : IJwtGenerator
         
         return new TokenResponse
         {
+            ExpiresIn = (int)(tokenExpires - DateTime.UtcNow).TotalSeconds,
             AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
             RefreshToken = GenerateRefreshToken(),
         };
