@@ -14,6 +14,6 @@ public class CreateHandler(IAuthRepository repo) : IRequestHandler<Create, AuthR
         
         return !result.Success
             ? new AuthResponse { Success = false, Errors = result.Errors } 
-            : new AuthResponse { Success = true, User = result.Data };
+            : new AuthResponse { Success = true };
     }
 }
