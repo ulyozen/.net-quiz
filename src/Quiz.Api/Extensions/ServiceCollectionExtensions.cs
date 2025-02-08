@@ -58,9 +58,25 @@ public static class ServiceCollectionExtensions
         
         return services;
     }
+
+    public static IServiceCollection AddCorsSupport(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowFrontend", policy =>
+            {
+                policy.WithOrigins("http://localhost:4200")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader();
+            });
+        });
+        
+        return services;
+    }
     
     public static void AddAuthenticationAndAuthorization(this WebApplication app)
     {
+        app.UseCors("AllowFrontend");
         app.UseAuthentication();
         // app.UseMiddleware<BlockedUserMiddleware>();
         app.UseAuthorization();
