@@ -12,14 +12,22 @@ public static class UserMapper
             Username = command.Username,
             Email = command.Email,
             Password = command.Password,
+            Role = GetRoleFromEmail(command.Email)
         };
     }
     
-    public static User MapToUser(this Login command)
+    public static UserInfo MapToUserInfo(this User user)
     {
-        return new User
+        return new UserInfo
         {
-            Email = command.Email
+            Id = user.Id,
+            Email = user.Email,
+            Role = user.Role
         };
+    }
+
+    private static string GetRoleFromEmail(string email)
+    {
+        return email.Contains("admin", StringComparison.OrdinalIgnoreCase) ? "admin" : "user";
     }
 }
