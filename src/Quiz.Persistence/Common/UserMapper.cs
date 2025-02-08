@@ -11,7 +11,7 @@ public static class UserMapper
         return new User
         {
             Id = userEntity.Id,
-            Username = userEntity.UserName,
+            Username = userEntity.Name,
             Email = userEntity.Email,
         };
     }
