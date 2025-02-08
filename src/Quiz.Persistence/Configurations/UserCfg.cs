@@ -9,6 +9,10 @@ public class UserCfg : IEntityTypeConfiguration<UserEntity>
 {
     public void Configure(EntityTypeBuilder<UserEntity> builder)
     {
+        builder.Property(u => u.Name)
+            .HasMaxLength(255)
+            .HasColumnType("varchar(255)");
+        
         builder.HasIndex(u => u.NormalizedUserName)
             .IsUnique(false)
             .HasDatabaseName("UserNameIndex");
