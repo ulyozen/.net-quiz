@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Quiz.Application.Common;
 using Quiz.Application.Users.Commands;
 
 namespace Quiz.Api.Controllers;
@@ -10,23 +11,19 @@ namespace Quiz.Api.Controllers;
 public class AuthController(IMediator mediator) : ControllerBase
 {
     [HttpPost("signup")]
-    public async Task<IActionResult> Create([FromBody] Create command)
+    public async Task<ActionResult<AuthResponse>> Create([FromBody] Create command)
     {
         var result = await mediator.Send(command);
-        if (!result.Success)
-            return BadRequest(result);
         
-        return Created(nameof(Create), result);
+        return !result.Success ? BadRequest(result) : Created(nameof(Create), result);
     }
     
     [HttpPost("signin")]
-    public async Task<IActionResult> Login([FromBody] Login command)
+    public async Task<ActionResult<AuthResponse>> Login([FromBody] Login command)
     {
         var result = await mediator.Send(command);
-        if (!result.Success)
-            return Unauthorized(result);
-            
-        return Ok(result);
+
+        return !result.Success ? Unauthorized(result) : Created(nameof(Create), result);
     }
     
     [HttpPost("refresh-token")]
