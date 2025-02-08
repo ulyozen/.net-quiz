@@ -16,6 +16,6 @@ public class LoginHandler(IAuthRepository repo, IJwtGenerator jwt) : IRequestHan
         
         return !result.Success 
             ? new AuthResponse { Success = false, Errors = result.Errors } 
-            : new AuthResponse { Success = true, Token = token };
+            : new AuthResponse { Success = true, Token = token, User = result.Data!.MapToUserInfo() };
     }
 }
