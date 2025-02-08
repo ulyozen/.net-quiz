@@ -59,12 +59,20 @@ public class UserRepository(UserManager<UserEntity> userManager,
         if (emailExist != null) 
             return OperationResult<User>.Failure([$"Email {user.Email} already exists."]);
         
-        var userEntity = new UserEntity { UserName = user.Username, Email = user.Email };
+        var userEntity = new UserEntity { Name = user.Username, UserName = user.Email, Email = user.Email };
         
         var result = await userManager.CreateAsync(userEntity, user.Password!);
-        return !result.Succeeded 
-            ? OperationResult<User>.Failure(result.Errors.Select(e => e.Description).ToList()) 
-            : OperationResult<User>.SuccessResult(userEntity.MapToUser());
+        if (!result.Succeeded)
+            return OperationResult<User>.Failure(result.Errors.Select(e => e.Description).ToList());
+        
+        var roleResult = await userManager.AddToRoleAsync(userEntity, user.Role!);
+        if (!roleResult.Succeeded)
+        {
+            await userManager.DeleteAsync(userEntity);
+            return OperationResult<User>.Failure(roleResult.Errors.Select(e => e.Description).ToList());
+        }
+        
+        return OperationResult<User>.SuccessResult(userEntity.MapToUser());
     }
     
     public async Task<OperationResult> UpdateUserAsync(User user)
