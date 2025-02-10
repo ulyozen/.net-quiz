@@ -6,16 +6,14 @@ using Quiz.Core.Abstractions;
 
 namespace Quiz.Application.Users.Handlers;
 
-public class LoginHandler(IAuthRepository repo, IJwtGenerator jwt) : IRequestHandler<Login, AuthResponse>
+public class LoginHandler(IAuthRepository authRepo, IJwtManager jwt) : IRequestHandler<Login, AuthResponse>
 {
     public async Task<AuthResponse> Handle(Login command, CancellationToken cancellationToken)
     {
-        var result = await repo.Login(command.Email!, command.Password!);
-
-        var token = jwt.GenerateToken(result.Data!);
+        var result = await authRepo.Login(command.Email!, command.Password!);
         
-        return !result.Success 
-            ? new AuthResponse { Success = false, Errors = result.Errors } 
-            : new AuthResponse { Success = true, Token = token, User = result.Data!.MapToUserInfo() };
+        return !result.Success
+            ? new AuthResponse { Success = false, Errors = result.Errors }
+            : await jwt.GenerateTokensAsync(result.Data!);
     }
 }
