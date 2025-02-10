@@ -18,8 +18,9 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<IAuthRepository, AuthRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IJwtGenerator, JwtGenerator>();
-        
+        services.AddScoped<IJwtManager, JwtManager>();
+        services.AddScoped<IRefreshTokenCookieManager, RefreshTokenCookieManager>();
+
         // services.AddTransient<BlockedUserMiddleware>();
         
         return services;
