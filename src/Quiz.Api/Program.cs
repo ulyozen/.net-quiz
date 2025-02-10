@@ -19,6 +19,7 @@ builder.Services
     .AddDbSettings()
     .AddCorsSupport()
     .AddMediatrAndFluentValidation()
+    .AddHttpContextAccessor()
     .AddIdentityService();
 
 var app = builder.Build();
