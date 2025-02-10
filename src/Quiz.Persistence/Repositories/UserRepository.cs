@@ -65,7 +65,7 @@ public class UserRepository(
         
         var checkCredential = await signInManager.CheckPasswordSignInAsync(emailExist, password, false);
         if (!checkCredential.Succeeded)
-            return OperationResult<User>.Failure(["Invalid credentials"]);
+            return OperationResult<User>.Failure(["Incorrect password."]);
         
         var role = await userManager.GetRolesAsync(emailExist);
         var user = emailExist.MapToUser();
