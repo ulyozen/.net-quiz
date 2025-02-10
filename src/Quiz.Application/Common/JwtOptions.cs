@@ -1,4 +1,4 @@
-namespace Quiz.Persistence.Common;
+namespace Quiz.Application.Common;
 
 public class JwtOptions
 {
