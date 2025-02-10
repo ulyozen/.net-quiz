@@ -1,4 +1,3 @@
-using Quiz.Application.Users.Commands;
 using Quiz.Core.Entities;
 using Quiz.Persistence.Entities;
 
