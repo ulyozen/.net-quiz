@@ -13,25 +13,19 @@ public class AuthController(IMediator mediator) : ControllerBase
     [HttpPost("signup")]
     public async Task<ActionResult<AuthResponse>> Create([FromBody] Create command)
     {
-        var result = await mediator.Send(command);
-        
-        return !result.Success ? BadRequest(result) : Created(nameof(Create), result);
+        return Ok(await mediator.Send(command));
     }
     
     [HttpPost("signin")]
     public async Task<ActionResult<AuthResponse>> Login([FromBody] Login command)
     {
-        var result = await mediator.Send(command);
-
-        return !result.Success ? Unauthorized(result) : Created(nameof(Create), result);
+        return Ok(await mediator.Send(command));
     }
     
     [HttpPost("refresh-token")]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshToken command)
+    public async Task<ActionResult<AuthResponse>> RefreshToken([FromBody] RefreshToken command)
     {
-        var result = await mediator.Send(command);
-        
-        return Ok(result);
+        return Ok(await mediator.Send(command));
     }
     
     [HttpPost("forgot-password")]
