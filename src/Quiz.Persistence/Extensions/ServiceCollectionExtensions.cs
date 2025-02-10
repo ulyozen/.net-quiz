@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
+using Quiz.Application.Common;
 using Quiz.Persistence.Common;
 using Quiz.Persistence.Context;
 using Quiz.Persistence.Entities;
