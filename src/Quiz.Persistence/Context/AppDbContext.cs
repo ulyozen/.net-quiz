@@ -9,13 +9,15 @@ public class AppDbContext : IdentityDbContext<UserEntity>
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     
-    DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
+    public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
 
         builder.ApplyConfiguration(new UserCfg());
+        
+        builder.ApplyConfiguration(new RefreshTokenCfg());
 
         builder.ApplyConfigurationsFromAssembly(typeof(AppContext).Assembly);
     }
