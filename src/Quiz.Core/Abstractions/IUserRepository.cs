@@ -11,9 +11,15 @@ public interface IUserRepository
     
     Task<IEnumerable<User>> GetUsersAsync();
     
+    Task<OperationResult<User>> GetUserByRefreshTokenAsync(string refreshToken);
+    
     Task<OperationResult<User>> UserCredentialsAsync(string email, string password);
     
     Task<OperationResult<User>> AddUserAsync(User user);
+    
+    Task<OperationResult> AddRefreshTokenAsync(string userId, string refreshToken, string expiryDate);
+
+    Task<OperationResult> UpdateRefreshTokenAsync(string oldRefreshToken, string newRefreshToken, string expiryDate);
     
     Task<OperationResult> UpdateUserAsync(User user);
     

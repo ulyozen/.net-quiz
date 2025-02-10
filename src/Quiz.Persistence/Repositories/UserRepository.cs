@@ -4,11 +4,14 @@ using Quiz.Core.Abstractions;
 using Quiz.Core.Common;
 using Quiz.Core.Entities;
 using Quiz.Persistence.Common;
+using Quiz.Persistence.Context;
 using Quiz.Persistence.Entities;
 
 namespace Quiz.Persistence.Repositories;
 
-public class UserRepository(UserManager<UserEntity> userManager, 
+public class UserRepository(
+    AppDbContext context,
+    UserManager<UserEntity> userManager, 
     SignInManager<UserEntity> signInManager) : IUserRepository
 {
     public async Task<OperationResult<User>> GetUserByIdAsync(string userId)
@@ -35,7 +38,25 @@ public class UserRepository(UserManager<UserEntity> userManager,
         
         return users.Select(u => u.MapToUser());
     }
+    
+    public async Task<OperationResult<User>> GetUserByRefreshTokenAsync(string refreshToken)
+    {
+        var token = await context.RefreshTokens
+            .Include(rt => rt.UserEntity)
+            .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
 
+        if (token == null)
+            return OperationResult<User>.Failure(["Refresh token not found"]);
+        
+        var role = await userManager.GetRolesAsync(token.UserEntity);
+        var user = token.UserEntity.MapToUser();
+        user.Role = string.Join(',', role);
+        
+        return token.Expires < DateTime.UtcNow 
+            ? OperationResult<User>.Failure(["Refresh token has expired"]) 
+            : OperationResult<User>.SuccessResult(user);
+    }
+    
     public async Task<OperationResult<User>> UserCredentialsAsync(string email, string password)
     {
         var emailExist = await userManager.FindByEmailAsync(email);
@@ -73,6 +94,38 @@ public class UserRepository(UserManager<UserEntity> userManager,
         }
         
         return OperationResult<User>.SuccessResult(userEntity.MapToUser());
+    }
+    
+    public async Task<OperationResult> AddRefreshTokenAsync(string userId, string refreshToken, string expiryDate)
+    {
+        var refreshTokenEntity = new RefreshTokenEntity
+        {
+            Id = Guid.NewGuid().ToString(),
+            Token = refreshToken, 
+            Expires = DateTime.UtcNow.AddDays(int.Parse(expiryDate)),
+            IsUsed = false,
+            IsRevoked = false,
+            UserId = userId
+        };
+            
+        await context.RefreshTokens.AddAsync(refreshTokenEntity);
+        await context.SaveChangesAsync();
+        
+        return OperationResult.SuccessResult();
+    }
+    
+    public async Task<OperationResult> UpdateRefreshTokenAsync(
+        string oldRefreshToken, string newRefreshToken, string expiryDate)
+    {
+        var tokenExist = await context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == oldRefreshToken);
+        if (tokenExist == null)
+            return OperationResult.Failure(["Refresh token not found"]);
+        
+        tokenExist.Token = newRefreshToken;
+        tokenExist.Expires = DateTime.UtcNow.AddDays(int.Parse(expiryDate));
+        await context.SaveChangesAsync();
+        
+        return OperationResult.SuccessResult();
     }
     
     public async Task<OperationResult> UpdateUserAsync(User user)
