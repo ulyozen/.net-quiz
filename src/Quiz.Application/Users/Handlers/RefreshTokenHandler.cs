@@ -1,13 +1,18 @@
 using MediatR;
+using Quiz.Application.Abstractions;
 using Quiz.Application.Common;
 using Quiz.Application.Users.Commands;
 
 namespace Quiz.Application.Users.Handlers;
 
-public class RefreshTokenHandler : IRequestHandler<RefreshToken, AuthResponse>
+public class RefreshTokenHandler(IJwtManager jwt) : IRequestHandler<RefreshToken, AuthResponse>
 {
-    public Task<AuthResponse> Handle(RefreshToken request, CancellationToken cancellationToken)
+    public async Task<AuthResponse> Handle(RefreshToken request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await jwt.GetRefreshTokenAsync();
+        
+        return !result.Success
+            ? new AuthResponse { Success = false, Errors = result.Errors }
+            : await jwt.GenerateTokensAsync(result.Data!);
     }
 }
