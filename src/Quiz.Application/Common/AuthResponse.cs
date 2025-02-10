@@ -1,5 +1,3 @@
-using Quiz.Core.Entities;
-
 namespace Quiz.Application.Common;
 
 public class AuthResponse
