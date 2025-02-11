@@ -14,7 +14,7 @@ public class RefreshTokenCookieManager(IHttpContextAccessor http) : IRefreshToke
             : OperationResult<string>.SuccessResult(token);
     }
     
-    public OperationResult SetRefreshTokenCookie(string refreshToken, string expiresIn, bool rememberMe)
+    public void SetRefreshTokenCookie(string refreshToken, string expiresIn, bool rememberMe)
     {
         http.HttpContext?.Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
         {
@@ -25,14 +25,16 @@ public class RefreshTokenCookieManager(IHttpContextAccessor http) : IRefreshToke
                 ? DateTime.UtcNow.AddDays(int.Parse(expiresIn))
                 : DateTime.UtcNow.AddHours(int.Parse(expiresIn))
         });
-        
-        return OperationResult.SuccessResult();
     }
     
-    public OperationResult RemoveRefreshTokenCookie()
+    public void RemoveRefreshTokenCookie(int expiresIn = -1)
     {
-        http.HttpContext?.Response.Cookies.Delete("refreshToken");
-        
-        return OperationResult.SuccessResult();
+        http.HttpContext?.Response.Cookies.Append("refreshToken", "", new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.None,
+            Expires = DateTime.UtcNow.AddDays(expiresIn)
+        });
     }
 }

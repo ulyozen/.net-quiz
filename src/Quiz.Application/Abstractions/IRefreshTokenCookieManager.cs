@@ -6,7 +6,7 @@ public interface IRefreshTokenCookieManager
 {
     OperationResult<string> GetRefreshTokenCookie();
     
-    OperationResult SetRefreshTokenCookie(string refreshToken, string expiresIn, bool rememberMe);
+    void SetRefreshTokenCookie(string refreshToken, string expiresIn, bool rememberMe);
     
-    OperationResult RemoveRefreshTokenCookie();
+    void RemoveRefreshTokenCookie(int expiresIn = -1);
 }
