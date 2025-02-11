@@ -57,7 +57,7 @@ public class UserRepository(
             : OperationResult<User>.SuccessResult(user);
     }
     
-    public async Task<OperationResult<User>> UserCredentialsAsync(string email, string password)
+    public async Task<OperationResult<User>> UserCredentialsAsync(string email, string password, bool rememberMe)
     {
         var emailExist = await userManager.FindByEmailAsync(email);
         if (emailExist == null)
@@ -66,6 +66,9 @@ public class UserRepository(
         var checkCredential = await signInManager.CheckPasswordSignInAsync(emailExist, password, false);
         if (!checkCredential.Succeeded)
             return OperationResult<User>.Failure(["Incorrect password."]);
+
+        emailExist.RememberMe = rememberMe;
+        await userManager.UpdateAsync(emailExist);
         
         var role = await userManager.GetRolesAsync(emailExist);
         var user = emailExist.MapToUser();

@@ -12,6 +12,10 @@ public class UserCfg : IEntityTypeConfiguration<UserEntity>
         builder.Property(u => u.Name)
             .HasMaxLength(255)
             .HasColumnType("varchar(255)");
+
+        builder.Property(u => u.RememberMe)
+            .HasColumnType("boolean")
+            .HasDefaultValue(false);
         
         builder.HasIndex(u => u.NormalizedUserName)
             .IsUnique(false)
