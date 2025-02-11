@@ -72,6 +72,7 @@ public static class ServiceCollectionExtensions
             options.AddPolicy("AllowFrontend", policy =>
             {
                 policy.WithOrigins("http://localhost:4200", "https://vision360.kz")
+                    .AllowCredentials()
                     .AllowAnyMethod()
                     .AllowAnyHeader();
             });
