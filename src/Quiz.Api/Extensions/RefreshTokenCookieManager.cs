@@ -31,7 +31,7 @@ public class RefreshTokenCookieManager(IHttpContextAccessor http) : IRefreshToke
         http.HttpContext?.Response.Cookies.Append("refreshToken", refreshToken, options);
     }
     
-    public void RemoveRefreshTokenCookie(int expiresIn = -1)
+    public void RemoveRefreshTokenCookie()
     {
         http.HttpContext?.Response.Cookies.Delete("refreshToken");
     }

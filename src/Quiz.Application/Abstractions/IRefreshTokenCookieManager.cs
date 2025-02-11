@@ -8,5 +8,5 @@ public interface IRefreshTokenCookieManager
     
     void SetRefreshTokenCookie(string refreshToken, string expiresIn, bool rememberMe);
     
-    void RemoveRefreshTokenCookie(int expiresIn = -1);
+    void RemoveRefreshTokenCookie();
 }
