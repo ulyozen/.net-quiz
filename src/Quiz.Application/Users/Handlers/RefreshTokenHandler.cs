@@ -9,7 +9,7 @@ public class RefreshTokenHandler(IJwtManager jwt) : IRequestHandler<RefreshToken
 {
     public async Task<AuthResponse> Handle(RefreshToken request, CancellationToken cancellationToken)
     {
-        var result = await jwt.GetRefreshTokenAsync();
+        var result = await jwt.GetUserRefreshTokenAsync();
         
         return !result.Success
             ? new AuthResponse { Success = false, Errors = result.Errors }

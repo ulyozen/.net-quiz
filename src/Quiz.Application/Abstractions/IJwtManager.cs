@@ -6,7 +6,7 @@ namespace Quiz.Application.Abstractions;
 
 public interface IJwtManager
 {
-    Task<OperationResult<User>> GetRefreshTokenAsync();
+    Task<OperationResult<User>> GetUserRefreshTokenAsync();
     
     Task<AuthResponse> GenerateTokensAsync(User user);
 }
