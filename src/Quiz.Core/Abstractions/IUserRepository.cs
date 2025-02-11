@@ -17,9 +17,9 @@ public interface IUserRepository
     
     Task<OperationResult<User>> AddUserAsync(User user);
     
-    Task<OperationResult> AddRefreshTokenAsync(string userId, string refreshToken, string expiryDate);
-
-    Task<OperationResult> UpdateRefreshTokenAsync(string oldRefreshToken, string newRefreshToken, string expiryDate);
+    Task<OperationResult> AddRefreshTokenAsync(User user, string refreshToken, string expiryDate);
+    
+    Task<OperationResult> UpdateRefreshTokenAsync(User user, string oldRefreshToken, string newRefreshToken, string expiryDate);
     
     Task<OperationResult> UpdateUserAsync(User user);
     

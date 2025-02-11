@@ -99,16 +99,18 @@ public class UserRepository(
         return OperationResult<User>.SuccessResult(userEntity.MapToUser());
     }
     
-    public async Task<OperationResult> AddRefreshTokenAsync(string userId, string refreshToken, string expiryDate)
+    public async Task<OperationResult> AddRefreshTokenAsync(User user, string refreshToken, string expiryDate)
     {
         var refreshTokenEntity = new RefreshTokenEntity
         {
             Id = Guid.NewGuid().ToString(),
             Token = refreshToken, 
-            Expires = DateTime.UtcNow.AddDays(int.Parse(expiryDate)),
+            Expires = user.RememberMe 
+                ? DateTime.UtcNow.AddDays(int.Parse(expiryDate))
+                : DateTime.UtcNow.AddHours(int.Parse(expiryDate)),
             IsUsed = false,
             IsRevoked = false,
-            UserId = userId
+            UserId = user.Id!
         };
             
         await context.RefreshTokens.AddAsync(refreshTokenEntity);
@@ -118,14 +120,16 @@ public class UserRepository(
     }
     
     public async Task<OperationResult> UpdateRefreshTokenAsync(
-        string oldRefreshToken, string newRefreshToken, string expiryDate)
+        User user, string oldRefreshToken, string newRefreshToken, string expiryDate)
     {
         var tokenExist = await context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == oldRefreshToken);
         if (tokenExist == null)
             return OperationResult.Failure(["Refresh token not found"]);
         
         tokenExist.Token = newRefreshToken;
-        tokenExist.Expires = DateTime.UtcNow.AddDays(int.Parse(expiryDate));
+        tokenExist.Expires = user.RememberMe
+            ? DateTime.UtcNow.AddDays(int.Parse(expiryDate))
+            : DateTime.UtcNow.AddHours(int.Parse(expiryDate));
         await context.SaveChangesAsync();
         
         return OperationResult.SuccessResult();

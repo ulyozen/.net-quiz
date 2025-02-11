@@ -78,12 +78,12 @@ public class JwtManager(
     private async Task<OperationResult> ManageRefreshTokenAsync(User user)
     {
         var expiresIn = options.Value.RefreshTokenExpiryDays!;
-        var newRefreshToken = GenerateRefreshToken();
         var oldRefreshToken = cookie.GetRefreshTokenCookie();
-        
+        var newRefreshToken = GenerateRefreshToken();
+
         var result = oldRefreshToken.Success
-            ? await userRepo.UpdateRefreshTokenAsync(oldRefreshToken.Data!, newRefreshToken, expiresIn)
-            : await userRepo.AddRefreshTokenAsync(user.Id!, newRefreshToken, expiresIn);
+            ? await userRepo.UpdateRefreshTokenAsync(user, oldRefreshToken.Data!, newRefreshToken, expiresIn)
+            : await userRepo.AddRefreshTokenAsync(user, newRefreshToken, expiresIn);
         
         if (!result.Success)
             return OperationResult.Failure(result.Errors!);
