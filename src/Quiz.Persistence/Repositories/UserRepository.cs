@@ -51,10 +51,14 @@ public class UserRepository(
         var role = await userManager.GetRolesAsync(token.UserEntity);
         var user = token.UserEntity.MapToUser();
         user.Role = string.Join(',', role);
+
+        if (token.Expires < DateTime.UtcNow)
+        {
+            await DeleteRefreshTokenAsync(refreshToken);
+            return OperationResult<User>.Failure(["Refresh token has expired"]);
+        }
         
-        return token.Expires < DateTime.UtcNow 
-            ? OperationResult<User>.Failure(["Refresh token has expired"]) 
-            : OperationResult<User>.SuccessResult(user);
+        return OperationResult<User>.SuccessResult(user);
     }
     
     public async Task<OperationResult<User>> UserCredentialsAsync(string email, string password, bool rememberMe)
@@ -139,8 +143,8 @@ public class UserRepository(
     {
         var emailExist = await userManager.FindByEmailAsync(user.Email!);
         if (emailExist == null)
-            return OperationResult.Failure([$"Email {user.Id} does not exist."]);
-
+            return OperationResult.Failure([$"Email {user.Email} does not exist."]);
+        
         //TODO: Think about what is actually should be updated
 
         var result = await userManager.UpdateAsync(emailExist);
@@ -148,16 +152,42 @@ public class UserRepository(
             ? OperationResult.Failure(result.Errors.Select(e => e.Description).ToList()) 
             : OperationResult.SuccessResult();
     }
+
+    public async Task<OperationResult> UpdateUserPasswordAsync(string email, string password)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user == null)
+            return OperationResult.Failure([$"Email {email} does not exist."]);
+        
+        var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+        var result = await userManager.ResetPasswordAsync(user, resetToken, password);
+        
+        return !result.Succeeded 
+            ? OperationResult.Failure(result.Errors.Select(e => e.Description).ToList())
+            : OperationResult.SuccessResult();
+    }
     
     public async Task<OperationResult> DeleteUserAsync(string userId)
     {
-        var emailExist = await userManager.FindByEmailAsync(userId);
-        if (emailExist == null)
-            return OperationResult.Failure([$"Email {userId} does not exist."]);
+        var user = await userManager.FindByEmailAsync(userId);
+        if (user == null)
+            return OperationResult.Failure([$"User does not exist."]);
 
-        var result = await userManager.DeleteAsync(emailExist);
+        var result = await userManager.DeleteAsync(user);
         return !result.Succeeded 
             ? OperationResult.Failure(result.Errors.Select(e => e.Description).ToList()) 
             : OperationResult.SuccessResult();
+    }
+
+    public async Task<OperationResult> DeleteRefreshTokenAsync(string refreshToken)
+    {
+        var token = await context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+        if (token != null)
+        {
+            context.RefreshTokens.Remove(token);
+            await context.SaveChangesAsync();
+        }
+            
+        return OperationResult.SuccessResult();
     }
 }

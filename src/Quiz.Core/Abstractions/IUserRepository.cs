@@ -23,5 +23,9 @@ public interface IUserRepository
     
     Task<OperationResult> UpdateUserAsync(User user);
     
+    Task<OperationResult> UpdateUserPasswordAsync(string email, string password);
+    
     Task<OperationResult> DeleteUserAsync(string userId);
+    
+    Task<OperationResult> DeleteRefreshTokenAsync(string refreshToken);
 }
