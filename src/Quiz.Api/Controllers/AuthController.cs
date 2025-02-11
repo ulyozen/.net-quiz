@@ -29,14 +29,15 @@ public class AuthController(IMediator mediator) : ControllerBase
     }
     
     [HttpPost("forgot-password")]
-    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPassword command)
+    public async Task<ActionResult<AuthResponse>> ForgotPassword([FromBody] ForgotPassword command)
     {
         return Ok(await mediator.Send(command));
     }
     
     [HttpPost("logout")]
-    public IActionResult Logout()
+    public async Task<IActionResult> Logout([FromBody] Logout command)
     {
+        await mediator.Send(command);
         return Ok();
     }
 }
