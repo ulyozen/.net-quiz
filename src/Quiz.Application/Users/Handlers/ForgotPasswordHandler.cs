@@ -1,13 +1,18 @@
 using MediatR;
 using Quiz.Application.Common;
 using Quiz.Application.Users.Commands;
+using Quiz.Core.Abstractions;
 
 namespace Quiz.Application.Users.Handlers;
 
-public class ForgotPasswordHandler : IRequestHandler<ForgotPassword, AuthResponse>
+public class ForgotPasswordHandler(IAuthRepository repo) : IRequestHandler<ForgotPassword, AuthResponse>
 {
-    public Task<AuthResponse> Handle(ForgotPassword request, CancellationToken cancellationToken)
+    public async Task<AuthResponse> Handle(ForgotPassword command, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        var result = await repo.ForgotPassword(command.Email, command.Password);
+
+        return !result.Success
+            ? new AuthResponse { Success = false, Errors = result.Errors }
+            : new AuthResponse { Success = true };
     }
 }
