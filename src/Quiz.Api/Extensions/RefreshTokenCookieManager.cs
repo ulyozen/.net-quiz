@@ -20,7 +20,7 @@ public class RefreshTokenCookieManager(IHttpContextAccessor http) : IRefreshToke
         {
             HttpOnly = true,
             Secure = true,
-            SameSite = SameSiteMode.Strict,
+            SameSite = SameSiteMode.None,
             Expires = rememberMe 
                 ? DateTime.UtcNow.AddDays(int.Parse(expiresIn))
                 : DateTime.UtcNow.AddHours(int.Parse(expiresIn))
