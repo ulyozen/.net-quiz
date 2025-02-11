@@ -10,7 +10,7 @@ public class LoginHandler(IAuthRepository authRepo, IJwtManager jwt) : IRequestH
 {
     public async Task<AuthResponse> Handle(Login command, CancellationToken cancellationToken)
     {
-        var result = await authRepo.Login(command.Email!, command.Password!);
+        var result = await authRepo.Login(command.Email!, command.Password!, command.RememberMe);
         
         return !result.Success
             ? new AuthResponse { Success = false, Errors = result.Errors }

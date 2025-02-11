@@ -18,7 +18,7 @@ public class JwtManager(
     IUserRepository userRepo) 
     : IJwtManager
 {
-    public async Task<OperationResult<User>> GetRefreshTokenAsync()
+    public async Task<OperationResult<User>> GetUserRefreshTokenAsync()
     {
         var refreshToken = cookie.GetRefreshTokenCookie();
         if (!refreshToken.Success)
@@ -34,7 +34,7 @@ public class JwtManager(
     public async Task<AuthResponse> GenerateTokensAsync(User user)
     {
         var accessToken = GenerateAccessToken(user);
-        var refreshToken = await ManageRefreshTokenAsync(user.Id!);
+        var refreshToken = await ManageRefreshTokenAsync(user);
         
         return !refreshToken.Success
             ? new AuthResponse { Success = false, Errors = refreshToken.Errors }
@@ -44,24 +44,6 @@ public class JwtManager(
                 Token = accessToken,
                 User = user.MapToUserInfo()
             };
-    }
-    
-    private async Task<OperationResult> ManageRefreshTokenAsync(string userId)
-    {
-        var expiresIn = options.Value.RefreshTokenExpiryDays!;
-        var newRefreshToken = GenerateRefreshToken();
-        var oldRefreshToken = cookie.GetRefreshTokenCookie();
-        
-        var result = oldRefreshToken.Success
-            ? await userRepo.UpdateRefreshTokenAsync(oldRefreshToken.Data!, newRefreshToken, expiresIn)
-            : await userRepo.AddRefreshTokenAsync(userId, newRefreshToken, expiresIn);
-        
-        if (!result.Success)
-            return OperationResult.Failure(result.Errors!);
-        
-        cookie.SetRefreshTokenCookie(newRefreshToken, expiresIn);
-        
-        return OperationResult.SuccessResult();
     }
     
     private TokenResponse GenerateAccessToken(User user)
@@ -91,6 +73,24 @@ public class JwtManager(
             ExpiresIn = (int)(tokenExpires - DateTime.UtcNow).TotalSeconds,
             AccessToken = new JwtSecurityTokenHandler().WriteToken(token),
         };
+    }
+    
+    private async Task<OperationResult> ManageRefreshTokenAsync(User user)
+    {
+        var expiresIn = options.Value.RefreshTokenExpiryDays!;
+        var newRefreshToken = GenerateRefreshToken();
+        var oldRefreshToken = cookie.GetRefreshTokenCookie();
+        
+        var result = oldRefreshToken.Success
+            ? await userRepo.UpdateRefreshTokenAsync(oldRefreshToken.Data!, newRefreshToken, expiresIn)
+            : await userRepo.AddRefreshTokenAsync(user.Id!, newRefreshToken, expiresIn);
+        
+        if (!result.Success)
+            return OperationResult.Failure(result.Errors!);
+        
+        cookie.SetRefreshTokenCookie(newRefreshToken, expiresIn, user.RememberMe);
+        
+        return OperationResult.SuccessResult();
     }
     
     private static string GenerateRefreshToken(int size = 32)

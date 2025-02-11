@@ -14,14 +14,16 @@ public class RefreshTokenCookieManager(IHttpContextAccessor http) : IRefreshToke
             : OperationResult<string>.SuccessResult(token);
     }
     
-    public OperationResult SetRefreshTokenCookie(string refreshToken, string expiryDays)
+    public OperationResult SetRefreshTokenCookie(string refreshToken, string expiresIn, bool rememberMe)
     {
         http.HttpContext?.Response.Cookies.Append("refreshToken", refreshToken, new CookieOptions
         {
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.Strict,
-            Expires = DateTime.UtcNow.AddDays(int.Parse(expiryDays))
+            Expires = rememberMe 
+                ? DateTime.UtcNow.AddDays(int.Parse(expiresIn))
+                : DateTime.UtcNow.AddHours(int.Parse(expiresIn))
         });
         
         return OperationResult.SuccessResult();

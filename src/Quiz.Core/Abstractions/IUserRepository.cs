@@ -13,7 +13,7 @@ public interface IUserRepository
     
     Task<OperationResult<User>> GetUserByRefreshTokenAsync(string refreshToken);
     
-    Task<OperationResult<User>> UserCredentialsAsync(string email, string password);
+    Task<OperationResult<User>> UserCredentialsAsync(string email, string password, bool rememberMe);
     
     Task<OperationResult<User>> AddUserAsync(User user);
     

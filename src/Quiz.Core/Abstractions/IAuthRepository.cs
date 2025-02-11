@@ -7,5 +7,5 @@ public interface IAuthRepository
 {
     Task<OperationResult<User>> Create(User user);
     
-    Task<OperationResult<User>> Login(string email, string password);
+    Task<OperationResult<User>> Login(string email, string password, bool rememberMe);
 }

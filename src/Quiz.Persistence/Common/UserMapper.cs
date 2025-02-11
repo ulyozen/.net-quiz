@@ -12,6 +12,7 @@ public static class UserMapper
             Id = userEntity.Id,
             Username = userEntity.Name,
             Email = userEntity.Email,
+            RememberMe = userEntity.RememberMe,
         };
     }
 }
