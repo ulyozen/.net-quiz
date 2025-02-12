@@ -56,7 +56,8 @@ public static class ServiceCollectionExtensions
                     ValidateAudience = true,
                     ValidAudience = jwtOptions.Audience,
                     ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero
+                    ClockSkew = TimeSpan.Zero,
+                    RoleClaimType = "role"
                 };
             });
         
