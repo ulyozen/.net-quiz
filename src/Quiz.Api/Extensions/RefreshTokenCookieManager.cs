@@ -25,7 +25,6 @@ public class RefreshTokenCookieManager(IHttpContextAccessor http) : IRefreshToke
             HttpOnly = true,
             Secure = true,
             SameSite = SameSiteMode.None,
-            Domain = "vision360.kz",
             Path = "/",
             Expires = expirationTime
         };
