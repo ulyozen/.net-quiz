@@ -35,9 +35,9 @@ public class AuthController(IMediator mediator) : ControllerBase
     }
     
     [HttpPost("logout")]
-    public IActionResult Logout([FromBody] Logout command)
+    public async Task<IActionResult> Logout([FromBody] Logout command)
     {
-        // await mediator.Send(command);
+        await mediator.Send(command);
         return Ok();
     }
 }
