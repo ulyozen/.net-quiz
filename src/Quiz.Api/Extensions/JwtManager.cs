@@ -12,10 +12,7 @@ using Quiz.Core.Entities;
 
 namespace Quiz.Api.Extensions;
 
-public class JwtManager(
-    IOptions<JwtOptions> options, 
-    IRefreshTokenCookieManager cookie, 
-    IUserRepository userRepo) 
+public class JwtManager(IOptions<JwtOptions> options, IRefreshTokenCookieManager cookie, IAuthRepository repo) 
     : IJwtManager
 {
     public async Task<OperationResult<User>> GetUserRefreshTokenAsync()
@@ -24,7 +21,7 @@ public class JwtManager(
         if (!refreshToken.Success)
             return OperationResult<User>.Failure(refreshToken.Errors!);
         
-        var result = await userRepo.GetUserByRefreshTokenAsync(refreshToken.Data!);
+        var result = await repo.GetUserAsync(refreshToken.Data!);
         
         return !result.Success
             ? OperationResult<User>.Failure(result.Errors!)
@@ -82,8 +79,8 @@ public class JwtManager(
         var newRefreshToken = GenerateRefreshToken();
 
         var result = oldRefreshToken.Success
-            ? await userRepo.UpdateRefreshTokenAsync(user, oldRefreshToken.Data!, newRefreshToken, expiresIn)
-            : await userRepo.AddRefreshTokenAsync(user, newRefreshToken, expiresIn);
+            ? await repo.UpdateRefreshTokenAsync(user, oldRefreshToken.Data!, newRefreshToken, expiresIn)
+            : await repo.AddRefreshTokenAsync(user, newRefreshToken, expiresIn);
         
         if (!result.Success)
             return OperationResult.Failure(result.Errors!);
