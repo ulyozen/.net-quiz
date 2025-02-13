@@ -16,11 +16,12 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApplicationExtension(this IServiceCollection services)
     {
+        services.AddScoped<IRefreshTokenCookieManager, RefreshTokenCookieManager>();
+        services.AddScoped<IJwtManager, JwtManager>();
         services.AddScoped<IAuthRepository, AuthRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IJwtManager, JwtManager>();
-        services.AddScoped<IRefreshTokenCookieManager, RefreshTokenCookieManager>();
-
+        services.AddScoped<IAdminRepository, AdminRepository>();
+        
         // services.AddTransient<BlockedUserMiddleware>();
         
         return services;
@@ -42,23 +43,25 @@ public static class ServiceCollectionExtensions
         
         var key = Encoding.UTF8.GetBytes(jwtOptions.Secret!);
         
+        var tokenValidator = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(key),
+            ValidateIssuer = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidateAudience = true,
+            ValidAudience = jwtOptions.Audience,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero,
+            RoleClaimType = "role"
+        };
+       
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
                 options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
-                options.TokenValidationParameters = new TokenValidationParameters
-                {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = true,
-                    ValidIssuer = jwtOptions.Issuer,
-                    ValidateAudience = true,
-                    ValidAudience = jwtOptions.Audience,
-                    ValidateLifetime = true,
-                    ClockSkew = TimeSpan.Zero,
-                    RoleClaimType = "role"
-                };
+                options.TokenValidationParameters = tokenValidator;
             });
         
         services.AddAuthorization();
