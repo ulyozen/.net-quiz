@@ -10,7 +10,7 @@ public class CreateHandler(IAuthRepository repo) : IRequestHandler<Create, AuthR
 {
     public async Task<AuthResponse> Handle(Create command, CancellationToken cancellationToken)
     {
-        var result = await repo.Create(command.MapToUser());
+        var result = await repo.AddUserAsync(command.MapToUser());
         
         return !result.Success
             ? new AuthResponse { Success = false, Errors = result.Errors } 
