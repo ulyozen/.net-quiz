@@ -9,6 +9,6 @@ public class LogoutHandler(IAuthRepository repo) : IRequestHandler<Logout>
 {
     public Task Handle(Logout command, CancellationToken cancellationToken)
     {
-        return repo.Logout();
+        return repo.RevokeAccessAsync();
     }
 }
