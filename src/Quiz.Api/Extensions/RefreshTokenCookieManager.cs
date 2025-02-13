@@ -5,13 +5,15 @@ namespace Quiz.Api.Extensions;
 
 public class RefreshTokenCookieManager(IHttpContextAccessor http) : IRefreshTokenCookieManager
 {
+    private const string RefreshToken = "refreshToken";
+    
     public OperationResult<string> GetRefreshTokenCookie()
     {
-        var token = http.HttpContext?.Request.Cookies["refreshToken"];
+        var refreshToken = http.HttpContext?.Request.Cookies[RefreshToken];
         
-        return string.IsNullOrWhiteSpace(token) 
-            ? OperationResult<string>.Failure(["Refresh token missing"]) 
-            : OperationResult<string>.SuccessResult(token);
+        return string.IsNullOrWhiteSpace(refreshToken) 
+            ? OperationResult<string>.Failure(DomainErrors.Auth.RefreshTokenMissing) 
+            : OperationResult<string>.SuccessResult(refreshToken);
     }
     
     public void SetRefreshTokenCookie(string refreshToken, string expiresIn, bool rememberMe)
@@ -29,11 +31,11 @@ public class RefreshTokenCookieManager(IHttpContextAccessor http) : IRefreshToke
             Expires = expirationTime
         };
         
-        http.HttpContext?.Response.Cookies.Append("refreshToken", refreshToken, options);
+        http.HttpContext?.Response.Cookies.Append(RefreshToken, refreshToken, options);
     }
     
     public void RemoveRefreshTokenCookie()
     {
-        http.HttpContext?.Response.Cookies.Delete("refreshToken");
+        http.HttpContext?.Response.Cookies.Delete(RefreshToken);
     }
 }
