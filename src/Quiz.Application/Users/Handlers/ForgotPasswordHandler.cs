@@ -9,7 +9,7 @@ public class ForgotPasswordHandler(IAuthRepository repo) : IRequestHandler<Forgo
 {
     public async Task<AuthResponse> Handle(ForgotPassword command, CancellationToken cancellationToken)
     {
-        var result = await repo.ForgotPassword(command.Email, command.Password);
+        var result = await repo.RecoverPasswordAsync(command.Email, command.Password);
 
         return !result.Success
             ? new AuthResponse { Success = false, Errors = result.Errors }
