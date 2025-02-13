@@ -18,7 +18,6 @@
       <Folder Include="Templates\Handlers\" />
       <Folder Include="Templates\Queries\" />
       <Folder Include="Templates\Validators\" />
-      <Folder Include="Users\Queries\" />
     </ItemGroup>
 
     <ItemGroup>
