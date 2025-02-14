@@ -1,7 +1,7 @@
 using Quiz.Application.Abstractions;
 using Quiz.Core.Common;
 
-namespace Quiz.Api.Extensions;
+namespace Quiz.Api.Services;
 
 public class RefreshTokenCookieManager(IHttpContextAccessor http) : IRefreshTokenCookieManager
 {
