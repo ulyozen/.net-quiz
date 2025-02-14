@@ -1,6 +1,6 @@
 using DotNetEnv;
 using Quiz.Api.Extensions;
-using Quiz.Persistence.Extensions;
+using Quiz.Persistence.Common;
 
 var builder = WebApplication.CreateBuilder(args);
 Env.Load();
@@ -10,7 +10,7 @@ builder.Services.AddEnvironmentVariables(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(SwaggerConfiguration.Configure);
 builder.Services.AddSignalR();
 
 builder.Services
@@ -20,7 +20,8 @@ builder.Services
     .AddCorsSupport()
     .AddMediatrAndFluentValidation()
     .AddHttpContextAccessor()
-    .AddIdentityService();
+    .AddRedis()
+    .AddIdentityCore();
 
 var app = builder.Build();
 
