@@ -10,7 +10,7 @@ using Quiz.Core.Abstractions;
 using Quiz.Core.Common;
 using Quiz.Core.Entities;
 
-namespace Quiz.Api.Extensions;
+namespace Quiz.Api.Services;
 
 public class JwtManager(IOptions<JwtOptions> options, IRefreshTokenCookieManager cookie, IAuthRepository repo) 
     : IJwtManager
@@ -52,9 +52,8 @@ public class JwtManager(IOptions<JwtOptions> options, IRefreshTokenCookieManager
         var claims = new List<Claim>
         {
             new (JwtRegisteredClaimNames.Sub, user.Id!),
-            new (JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUniversalTime().ToString()),
             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new ("role", user.Role!)
+            new (JwtRegisteredClaimNames.Iss, options.Value.Issuer!),
         };
         
         var token = new JwtSecurityToken(
