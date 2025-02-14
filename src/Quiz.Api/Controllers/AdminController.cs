@@ -1,4 +1,5 @@
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Quiz.Application.Users.Commands.AdminActions;
@@ -43,7 +44,7 @@ public class AdminController(IMediator mediator) : ControllerBase
         return Ok(result);
     }
     
-    [HttpDelete("user/{id:guid}")]
+    [HttpDelete("user/{id}")]
     public async Task<IActionResult> DeleteUser(string id)
     {
         var command = new DeleteCommand { UserId = id };
