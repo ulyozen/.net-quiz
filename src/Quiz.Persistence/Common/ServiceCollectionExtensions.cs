@@ -8,8 +8,8 @@ using Quiz.Application.Abstractions;
 using Quiz.Application.Common;
 using Quiz.Persistence.Context;
 using Quiz.Persistence.Entities;
+using Quiz.Persistence.Repositories;
 using Quiz.Persistence.Services;
-using Quiz.Redis.Repositories;
 using StackExchange.Redis;
 
 namespace Quiz.Persistence.Common;
