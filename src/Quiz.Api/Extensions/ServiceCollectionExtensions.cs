@@ -3,11 +3,10 @@ using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using Quiz.Api.Middlewares;
+using Quiz.Api.Services;
 using Quiz.Application.Abstractions;
 using Quiz.Application.Common;
 using Quiz.Core.Abstractions;
-using Quiz.Persistence.Common;
 using Quiz.Persistence.Repositories;
 
 namespace Quiz.Api.Extensions;
@@ -37,30 +36,24 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddJwtSupport(this IServiceCollection services)
     {
-        var provider = services.BuildServiceProvider();
-        
-        var jwtOptions = provider.GetRequiredService<IOptions<JwtOptions>>().Value;
-        
-        var key = Encoding.UTF8.GetBytes(jwtOptions.Secret!);
+        var jwtOptions = services.BuildServiceProvider().GetRequiredService<IOptions<JwtOptions>>().Value;
         
         var tokenValidator = new TokenValidationParameters
         {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(key),
             ValidateIssuer = true,
-            ValidIssuer = jwtOptions.Issuer,
-            ValidateAudience = true,
-            ValidAudience = jwtOptions.Audience,
+            ValidateAudience = false,
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero,
-            RoleClaimType = "role"
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtOptions.Issuer,
+            ValidAudience = jwtOptions.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.Secret!)),
         };
-       
+
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             .AddJwtBearer(options =>
             {
-                options.RequireHttpsMetadata = false;
                 options.SaveToken = true;
+                options.RequireHttpsMetadata = false;
                 options.TokenValidationParameters = tokenValidator;
             });
         
