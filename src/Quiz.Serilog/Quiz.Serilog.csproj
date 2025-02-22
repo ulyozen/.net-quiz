@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Quiz.Application\Quiz.Application.csproj" />
+      <ProjectReference Include="..\Quiz.Core\Quiz.Core.csproj" />
+      <ProjectReference Include="..\Quiz.Elasticsearch\Quiz.Elasticsearch.csproj" />
+      <ProjectReference Include="..\Quiz.Persistence\Quiz.Persistence.csproj" />
+      <ProjectReference Include="..\Quiz.Redis\Quiz.Redis.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Serilog" Version="4.2.0" />
+      <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+      <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    </ItemGroup>
+
+</Project>

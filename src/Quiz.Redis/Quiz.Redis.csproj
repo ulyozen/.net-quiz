@@ -1,0 +1,20 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Quiz.Application\Quiz.Application.csproj" />
+      <ProjectReference Include="..\Quiz.Core\Quiz.Core.csproj" />
+      <ProjectReference Include="..\Quiz.Elasticsearch\Quiz.Elasticsearch.csproj" />
+      <ProjectReference Include="..\Quiz.Persistence\Quiz.Persistence.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="StackExchange.Redis" Version="2.8.24" />
+    </ItemGroup>
+
+</Project>
