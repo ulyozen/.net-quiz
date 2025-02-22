@@ -1,11 +1,13 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Quiz.Core.Abstractions;
+using Quiz.Application.Abstractions;
 using Quiz.Core.Common;
 using Quiz.Core.Entities;
+using Quiz.Core.Repositories;
 using Quiz.Persistence.Common;
 using Quiz.Persistence.Context;
 using Quiz.Persistence.Entities;
+using Quiz.Persistence.Mappers;
 
 namespace Quiz.Persistence.Repositories;
 
@@ -14,7 +16,7 @@ public class AdminRepository : IAdminRepository
     private readonly AppDbContext _context;
     private readonly UserManager<UserEntity> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
-    
+
     public AdminRepository(
         AppDbContext context, 
         UserManager<UserEntity> userManager, 
@@ -25,34 +27,34 @@ public class AdminRepository : IAdminRepository
         _roleManager = roleManager;
     }
     
-    public async Task<IEnumerable<User>> GetUsersAsync()
+    public async Task<PaginationResult<User>> GetUsersAsync(int page, int pageSize)
     {
-        var usersWithRoles = await (
-            from user in _context.Users
-            join userRole in _context.UserRoles on user.Id equals userRole.UserId into userRoles
-            from ur in userRoles.DefaultIfEmpty()
-            join role in _context.Roles on ur.RoleId equals role.Id into roles
-            from r in roles.DefaultIfEmpty()
-            group r by user into g
-            select new
-            {
-                User = g.Key,
-                Roles = g.Where(role => role != null).Select(role => role.Name).ToList()
-            }
-        ).ToListAsync();
+        var totalCount = await _context.Users.CountAsync();
         
-        return usersWithRoles.Select(u =>
-        {
-            var user = u.User.MapToUser();
-            user.Role = string.Join(',', u.Roles);
-            return user;
-        });
+        var result = await _context.Users
+            .Select(u => new
+            {
+                User = u,
+                Roles = _context.UserRoles
+                    .Where(ur => ur.UserId == u.Id)
+                    .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
+                    .ToList()
+            })
+            .OrderBy(u => u.User.UserName)
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+        
+        var users = result.Select(u => User.Restore(u.User.Id, u.User.UserName, 
+            u.User.Email, u.User.IsBlocked, u.Roles)).ToList();
+
+        return PaginationResult<User>.Create(users, totalCount, page, pageSize);
     }
     
     public async Task<OperationResult> ChangeRoleAsync(string userId, string role)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
+        if (user is null)
             return OperationResult.Failure(DomainErrors.User.UserNotFound);
         
         var roleExists = await _roleManager.RoleExistsAsync(role);
@@ -68,6 +70,7 @@ public class AdminRepository : IAdminRepository
             return OperationResult.Failure(removeResult.Errors.Select(e => e.Description).ToList());
         
         var addRole = await _userManager.AddToRoleAsync(user, role);
+        
         return !addRole.Succeeded 
             ? OperationResult.Failure(addRole.Errors.Select(e => e.Description).ToList()) 
             : OperationResult.SuccessResult();
@@ -76,10 +79,14 @@ public class AdminRepository : IAdminRepository
     public async Task<OperationResult> BlockUserAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
+        if (user is null)
             return OperationResult.Failure(DomainErrors.User.UserNotFound);
         
-        user.LockoutEnd = DateTimeOffset.UtcNow.AddYears(100);
+        if (user.IsBlocked)
+            return OperationResult.Failure(DomainErrors.User.UserAlreadyBlocked);
+        
+        user.IsBlocked = true;
+        
         var result = await _userManager.UpdateAsync(user);
         
         return result.Succeeded 
@@ -90,10 +97,14 @@ public class AdminRepository : IAdminRepository
     public async Task<OperationResult> UnblockUserAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
+        if (user is null)
             return OperationResult.Failure(DomainErrors.User.UserNotFound);
         
-        user.LockoutEnd = null;
+        if (!user.IsBlocked)
+            return OperationResult.Failure(DomainErrors.User.UserAlreadyUnblocked);
+        
+        user.IsBlocked = false;
+        
         var result = await _userManager.UpdateAsync(user);
         
         return result.Succeeded 
@@ -104,7 +115,7 @@ public class AdminRepository : IAdminRepository
     public async Task<OperationResult> DeleteUserAsync(string userId)
     {
         var user = await _userManager.FindByIdAsync(userId);
-        if (user == null)
+        if (user is null)
             return OperationResult.Failure(DomainErrors.User.UserNotFound);
         
         var result = await _userManager.DeleteAsync(user);

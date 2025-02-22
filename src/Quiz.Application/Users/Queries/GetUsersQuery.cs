@@ -1,6 +1,12 @@
 using MediatR;
-using Quiz.Core.Entities;
+using Quiz.Application.Users.Dtos;
+using Quiz.Core.Common;
 
 namespace Quiz.Application.Users.Queries;
 
-public class GetUsersQuery : IRequest<IEnumerable<User>>;
+public class GetUsersQuery : IRequest<PaginationResult<UsersResponse>>
+{
+    public int Page { get; set; }
+    
+    public int PageSize { get; set; }
+}

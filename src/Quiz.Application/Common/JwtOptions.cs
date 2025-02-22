@@ -1,14 +1,21 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace Quiz.Application.Common;
 
 public class JwtOptions
 {
-    public string? Secret { get; set; }
+    [Required]
+    public string JWT_SECRET { get; set; }
     
-    public string? Issuer { get; set; }
+    [Required]
+    public string JWT_ISSUER { get; set; }
     
-    public string? Audience { get; set; }
+    [Required]
+    public string JWT_AUDIENCE { get; set; }
     
-    public string? AccessTokenExpiryMinutes { get; set; }
+    [Range(1, 30)]
+    public int ACCESS_TOKEN_EXPIRY_MINUTES { get; set; }
     
-    public string? RefreshTokenExpiryDays { get; set; }
+    [Range(1, 30)]
+    public int REFRESH_TOKEN_EXPIRY_DAYS { get; set; }
 }

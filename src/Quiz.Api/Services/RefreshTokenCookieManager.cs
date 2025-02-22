@@ -16,11 +16,11 @@ public class RefreshTokenCookieManager(IHttpContextAccessor http) : IRefreshToke
             : OperationResult<string>.SuccessResult(refreshToken);
     }
     
-    public void SetRefreshTokenCookie(string refreshToken, string expiresIn, bool rememberMe)
+    public void SetRefreshTokenCookie(string refreshToken, int expiresIn, bool rememberMe)
     {
         var expirationTime = rememberMe
-            ? DateTime.UtcNow.AddDays(int.Parse(expiresIn))
-            : DateTime.UtcNow.AddHours(int.Parse(expiresIn));
+            ? DateTime.UtcNow.AddDays(expiresIn)
+            : DateTime.UtcNow.AddHours(expiresIn);
         
         var options = new CookieOptions
         {

@@ -154,6 +154,159 @@ namespace Quiz.Persistence.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
+            modelBuilder.Entity("Quiz.Persistence.Entities.AllowedUsers", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TemplateId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.HasKey("UserId", "TemplateId");
+
+                    b.HasIndex("TemplateId")
+                        .HasDatabaseName("IX_TemplateId_AllowedUsers");
+
+                    b.ToTable("AllowedUsers", (string)null);
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.AnswerEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<bool?>("AnswerBoolean")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("AnswerText")
+                        .HasColumnType("text");
+
+                    b.Property<int?>("AnswerValue")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("QuestionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("SubmissionId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionId")
+                        .HasDatabaseName("IX_QuestionId");
+
+                    b.HasIndex("SubmissionId")
+                        .HasDatabaseName("IX_SubmissionId");
+
+                    b.ToTable("Answers", (string)null);
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.CommentEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TemplateId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId")
+                        .HasDatabaseName("IX_TemplateId_Comment");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_UserId_Comment");
+
+                    b.ToTable("Comments", (string)null);
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.LikeEntity", b =>
+                {
+                    b.Property<string>("TemplateId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("text");
+
+                    b.HasKey("TemplateId", "UserId");
+
+                    b.HasIndex("TemplateId")
+                        .HasDatabaseName("IX_TemplatesId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Likes", (string)null);
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.QuestionEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("QuestionTypeId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TemplateId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("QuestionTypeId")
+                        .HasDatabaseName("IX_QuestionTypeId");
+
+                    b.HasIndex("TemplateId")
+                        .HasDatabaseName("IX_TemplateId");
+
+                    b.ToTable("Questions", (string)null);
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.QuestionTypeEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<int>("ValueType")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("QuestionTypes", (string)null);
+                });
+
             modelBuilder.Entity("Quiz.Persistence.Entities.RefreshTokenEntity", b =>
                 {
                     b.Property<string>("Id")
@@ -170,8 +323,8 @@ namespace Quiz.Persistence.Migrations
 
                     b.Property<string>("Token")
                         .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("UserId")
                         .IsRequired()
@@ -181,11 +334,133 @@ namespace Quiz.Persistence.Migrations
 
                     b.HasIndex("Token")
                         .IsUnique()
-                        .HasDatabaseName("TokenIndex");
+                        .HasDatabaseName("IX_RefreshTokens");
 
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens", (string)null);
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.SubmissionEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("TemplateId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TemplateId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Submissions", (string)null);
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.TagEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags", (string)null);
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.TemplateEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("text");
+
+                    b.Property<bool>("IsPublic")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<string>("Topic")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("text");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Username")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Templates_UserId");
+
+                    b.ToTable("Templates", (string)null);
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.TemplateTagEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("TagId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("TemplateId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TagId");
+
+                    b.HasIndex("TemplateId");
+
+                    b.ToTable("TemplateTags", (string)null);
                 });
 
             modelBuilder.Entity("Quiz.Persistence.Entities.UserEntity", b =>
@@ -207,6 +482,9 @@ namespace Quiz.Persistence.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
+                    b.Property<bool>("IsBlocked")
+                        .HasColumnType("boolean");
+
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("boolean");
 
@@ -214,8 +492,9 @@ namespace Quiz.Persistence.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasMaxLength(255)
-                        .HasColumnType("varchar(255)");
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
@@ -253,10 +532,10 @@ namespace Quiz.Persistence.Migrations
 
                     b.HasIndex("NormalizedEmail")
                         .IsUnique()
-                        .HasDatabaseName("EmailIndex");
+                        .HasDatabaseName("IX_Email");
 
                     b.HasIndex("NormalizedUserName")
-                        .HasDatabaseName("UserNameIndex");
+                        .HasDatabaseName("IX_Username");
 
                     b.ToTable("AspNetUsers", (string)null);
                 });
@@ -312,10 +591,105 @@ namespace Quiz.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Quiz.Persistence.Entities.AllowedUsers", b =>
+                {
+                    b.HasOne("Quiz.Persistence.Entities.TemplateEntity", "Template")
+                        .WithMany("AllowedUsers")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Quiz.Persistence.Entities.UserEntity", "User")
+                        .WithMany("AllowedTemplates")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.AnswerEntity", b =>
+                {
+                    b.HasOne("Quiz.Persistence.Entities.QuestionEntity", "Question")
+                        .WithMany()
+                        .HasForeignKey("QuestionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Quiz.Persistence.Entities.SubmissionEntity", "Submission")
+                        .WithMany("Answers")
+                        .HasForeignKey("SubmissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Question");
+
+                    b.Navigation("Submission");
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.CommentEntity", b =>
+                {
+                    b.HasOne("Quiz.Persistence.Entities.TemplateEntity", "Template")
+                        .WithMany("Comments")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Quiz.Persistence.Entities.UserEntity", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.LikeEntity", b =>
+                {
+                    b.HasOne("Quiz.Persistence.Entities.TemplateEntity", "Template")
+                        .WithMany("Likes")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Quiz.Persistence.Entities.UserEntity", "User")
+                        .WithMany("Likes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.QuestionEntity", b =>
+                {
+                    b.HasOne("Quiz.Persistence.Entities.QuestionTypeEntity", "QuestionType")
+                        .WithMany("Questions")
+                        .HasForeignKey("QuestionTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Quiz.Persistence.Entities.TemplateEntity", "Template")
+                        .WithMany("Questions")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("QuestionType");
+
+                    b.Navigation("Template");
+                });
+
             modelBuilder.Entity("Quiz.Persistence.Entities.RefreshTokenEntity", b =>
                 {
                     b.HasOne("Quiz.Persistence.Entities.UserEntity", "UserEntity")
-                        .WithMany("RefreshToken")
+                        .WithMany("RefreshTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -323,9 +697,94 @@ namespace Quiz.Persistence.Migrations
                     b.Navigation("UserEntity");
                 });
 
+            modelBuilder.Entity("Quiz.Persistence.Entities.SubmissionEntity", b =>
+                {
+                    b.HasOne("Quiz.Persistence.Entities.TemplateEntity", "Template")
+                        .WithMany("Submissions")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Quiz.Persistence.Entities.UserEntity", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Template");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.TemplateEntity", b =>
+                {
+                    b.HasOne("Quiz.Persistence.Entities.UserEntity", "UserEntity")
+                        .WithMany("Templates")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("UserEntity");
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.TemplateTagEntity", b =>
+                {
+                    b.HasOne("Quiz.Persistence.Entities.TagEntity", "Tag")
+                        .WithMany("Tags")
+                        .HasForeignKey("TagId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Quiz.Persistence.Entities.TemplateEntity", "Template")
+                        .WithMany("Tags")
+                        .HasForeignKey("TemplateId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Tag");
+
+                    b.Navigation("Template");
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.QuestionTypeEntity", b =>
+                {
+                    b.Navigation("Questions");
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.SubmissionEntity", b =>
+                {
+                    b.Navigation("Answers");
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.TagEntity", b =>
+                {
+                    b.Navigation("Tags");
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.TemplateEntity", b =>
+                {
+                    b.Navigation("AllowedUsers");
+
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
+
+                    b.Navigation("Questions");
+
+                    b.Navigation("Submissions");
+
+                    b.Navigation("Tags");
+                });
+
             modelBuilder.Entity("Quiz.Persistence.Entities.UserEntity", b =>
                 {
-                    b.Navigation("RefreshToken");
+                    b.Navigation("AllowedTemplates");
+
+                    b.Navigation("Likes");
+
+                    b.Navigation("RefreshTokens");
+
+                    b.Navigation("Templates");
                 });
 #pragma warning restore 612, 618
         }

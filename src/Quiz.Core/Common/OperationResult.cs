@@ -2,17 +2,20 @@ namespace Quiz.Core.Common;
 
 public class OperationResult
 {
-    public bool Success { get; }
+    public bool Success { get; private set; }
     
-    public List<string>? Errors { get; }
-
-    protected OperationResult(bool success, List<string>? errors = null)
+    public string Message { get; private set; }
+    
+    public List<string> Errors { get; private set; }
+    
+    protected OperationResult(bool success, List<string> errors)
     {
         Success = success;
-        Errors = errors ?? [];
+        Message = errors.FirstOrDefault() ?? string.Empty;
+        Errors = errors;
     }
     
-    public static OperationResult SuccessResult() => new(true);
+    public static OperationResult SuccessResult() => new(true, []);
     
     public static OperationResult Failure(string error) => new(false, [error]);
     
@@ -21,15 +24,14 @@ public class OperationResult
 
 public class OperationResult<T> : OperationResult
 {
-    public T? Data { get; }
-
-    private OperationResult(bool success, T? data, List<string>? errors) 
-        : base(success, errors)
+    public T? Data { get; private set; }
+    
+    private OperationResult(bool success, T? data, List<string> errors) : base(success, errors)
     {
         Data = data;
     }
     
-    public static OperationResult<T> SuccessResult(T data) => new(true, data, null);
+    public static OperationResult<T> SuccessResult(T data) => new(true, data, []);
     
     public new static OperationResult<T> Failure(string error) => new(false, default, [error]);
     

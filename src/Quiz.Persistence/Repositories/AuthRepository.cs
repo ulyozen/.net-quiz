@@ -1,32 +1,33 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Quiz.Application.Abstractions;
-using Quiz.Core.Abstractions;
 using Quiz.Core.Common;
 using Quiz.Core.Entities;
+using Quiz.Core.Repositories;
 using Quiz.Persistence.Common;
 using Quiz.Persistence.Context;
 using Quiz.Persistence.Entities;
+using Quiz.Persistence.Mappers;
 
 namespace Quiz.Persistence.Repositories;
 
 public class AuthRepository : IAuthRepository
 {
     private readonly AppDbContext _context;
+    private readonly IGuidFactory _guidFactory;
     private readonly UserManager<UserEntity> _userManager;
     private readonly SignInManager<UserEntity> _signInManager;
-    private readonly IRefreshTokenCookieManager _cookie;
     
     public AuthRepository(
-        AppDbContext context, 
+        AppDbContext context,
+        IGuidFactory guidFactory,
         UserManager<UserEntity> userManager, 
-        SignInManager<UserEntity> signInManager, 
-        IRefreshTokenCookieManager cookie)
+        SignInManager<UserEntity> signInManager)
     {
         _context = context;
+        _guidFactory = guidFactory;
         _userManager = userManager;
         _signInManager = signInManager;
-        _cookie = cookie;
     }
     
     public async Task<OperationResult<User>> GetUserAsync(string refreshToken)
@@ -34,37 +35,36 @@ public class AuthRepository : IAuthRepository
         var token = await _context.RefreshTokens
             .Include(rt => rt.UserEntity)
             .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
-
-        if (token == null)
+        
+        if (token is null)
             return OperationResult<User>.Failure(DomainErrors.Auth.RefreshTokenNotFound);
         
         var role = await _userManager.GetRolesAsync(token.UserEntity);
         var user = token.UserEntity.MapToUser();
-        user.Role = string.Join(',', role);
-
-        if (token.Expires < DateTime.UtcNow)
-        {
-            _context.RefreshTokens.Remove(token);
-            await _context.SaveChangesAsync();
-            return OperationResult<User>.Failure(DomainErrors.Auth.RefreshTokenExpired);
-        }
+        user.ChangeRole(string.Join(',', role));
         
-        return OperationResult<User>.SuccessResult(user);
+        if (token.Expires >= DateTime.UtcNow)
+            return OperationResult<User>.SuccessResult(user);
+        
+        _context.RefreshTokens.Remove(token);
+        await _context.SaveChangesAsync();
+        
+        return OperationResult<User>.Failure(DomainErrors.Auth.RefreshTokenExpired);
     }
     
     public async Task<OperationResult<User>> AddUserAsync(User user)
     {
-        var emailExist = await _userManager.FindByEmailAsync(user.Email!);
+        var emailExist = await _userManager.FindByEmailAsync(user.Email.Value);
         if (emailExist != null) 
             return OperationResult<User>.Failure(DomainErrors.Auth.EmailAlreadyExists);
         
-        var userEntity = new UserEntity { Name = user.Username, UserName = user.Email, Email = user.Email };
+        var userEntity = new UserEntity { Name = user.Username, UserName = user.Email.Value, Email = user.Email.Value };
         
-        var result = await _userManager.CreateAsync(userEntity, user.Password!);
+        var result = await _userManager.CreateAsync(userEntity, user.Password);
         if (!result.Succeeded)
             return OperationResult<User>.Failure(result.Errors.Select(e => e.Description).ToList());
         
-        var roleResult = await _userManager.AddToRoleAsync(userEntity, user.Role!);
+        var roleResult = await _userManager.AddToRoleAsync(userEntity, user.Role);
         if (!roleResult.Succeeded)
         {
             await _userManager.DeleteAsync(userEntity);
@@ -77,12 +77,13 @@ public class AuthRepository : IAuthRepository
     public async Task<OperationResult<User>> LoginAsync(string email, string password, bool rememberMe)
     {
         var emailExist = await _userManager.FindByEmailAsync(email);
-        if (emailExist == null)
+        
+        if (emailExist is null)
             return OperationResult<User>.Failure(DomainErrors.Auth.EmailNotFound);
+        if (emailExist.IsBlocked)
+            return OperationResult<User>.Failure(DomainErrors.User.UserBlocked);
         
         var checkCredential = await _signInManager.CheckPasswordSignInAsync(emailExist, password, false);
-        if (checkCredential.IsLockedOut)
-            return OperationResult<User>.Failure(DomainErrors.User.UserBlocked);
         if (!checkCredential.Succeeded)
             return OperationResult<User>.Failure(DomainErrors.Auth.InvalidPassword);
         
@@ -91,42 +92,32 @@ public class AuthRepository : IAuthRepository
         
         var role = await _userManager.GetRolesAsync(emailExist);
         var user = emailExist.MapToUser();
-        user.Role = string.Join(',', role);
+        user.ChangeRole(string.Join(',', role));
         
         return OperationResult<User>.SuccessResult(user);
     }
     
-    public async Task<OperationResult> AddRefreshTokenAsync(User user, string refreshToken, string expiryDate)
+    public async Task<OperationResult> AddRefreshTokenAsync(User user, string refreshToken, int tokenLifetime)
     {
-        var refreshTokenEntity = new RefreshTokenEntity
-        {
-            Id = Guid.NewGuid().ToString(),
-            Token = refreshToken, 
-            Expires = user.RememberMe 
-                ? DateTime.UtcNow.AddDays(int.Parse(expiryDate))
-                : DateTime.UtcNow.AddHours(int.Parse(expiryDate)),
-            IsUsed = false,
-            IsRevoked = false,
-            UserId = user.Id!
-        };
+        var refreshTokenEntity = user.CreateRefreshToken(_guidFactory.Create(), refreshToken, tokenLifetime);
         
         await _context.RefreshTokens.AddAsync(refreshTokenEntity);
-        await _context.SaveChangesAsync();
         
         return OperationResult.SuccessResult();
     }
     
-    public async Task<OperationResult> UpdateRefreshTokenAsync(User user, string oldRefreshToken, string newRefreshToken, string expiryDate)
+    public async Task<OperationResult> UpdateRefreshTokenAsync(User user, string oldRefreshToken, 
+        string newRefreshToken, int tokenLifetime)
     {
-        var tokenExist = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == oldRefreshToken);
-        if (tokenExist == null)
+        var existingToken = await _context.RefreshTokens
+            .FirstOrDefaultAsync(rt => rt.Token == oldRefreshToken);
+        
+        if (existingToken is null)
             return OperationResult.Failure(DomainErrors.Auth.RefreshTokenNotFound);
         
-        tokenExist.Token = newRefreshToken;
-        tokenExist.Expires = user.RememberMe
-            ? DateTime.UtcNow.AddDays(int.Parse(expiryDate))
-            : DateTime.UtcNow.AddHours(int.Parse(expiryDate));
-        await _context.SaveChangesAsync();
+        existingToken.UpdateRefreshToken(user, newRefreshToken, tokenLifetime);
+        
+        _context.RefreshTokens.Update(existingToken);
         
         return OperationResult.SuccessResult();
     }
@@ -134,10 +125,11 @@ public class AuthRepository : IAuthRepository
     public async Task<OperationResult> RecoverPasswordAsync(string email, string password)
     {
         var user = await _userManager.FindByEmailAsync(email);
-        if (user == null)
+        if (user is null)
             return OperationResult.Failure(DomainErrors.Auth.EmailNotFound);
         
         var resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+        
         var result = await _userManager.ResetPasswordAsync(user, resetToken, password);
         
         return !result.Succeeded 
@@ -145,21 +137,12 @@ public class AuthRepository : IAuthRepository
             : OperationResult.SuccessResult();
     }
     
-    public async Task<OperationResult> RevokeAccessAsync()
+    public async Task<OperationResult> RevokeRefreshTokenAsync(string refreshToken)
     {
-        var refreshToken = _cookie.GetRefreshTokenCookie();
-        if (!refreshToken.Success)
-            return OperationResult.Failure(refreshToken.Errors!);
+        var result = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == refreshToken);
         
-        var result = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == refreshToken.Data);
-        if (result == null)
-            return OperationResult.Failure(DomainErrors.Auth.RefreshTokenNotFound);
-        
-        _cookie.RemoveRefreshTokenCookie();
-        
-        _context.RefreshTokens.Remove(result);
-        await _context.SaveChangesAsync();
-        
-        return OperationResult.SuccessResult();
+        return result is null 
+            ? OperationResult.Failure(DomainErrors.Auth.RefreshTokenNotFound) 
+            : OperationResult.SuccessResult();
     }
 }

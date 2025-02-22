@@ -1,9 +1,7 @@
 namespace Quiz.Persistence.Entities;
 
-public class RefreshTokenEntity
+public class RefreshTokenEntity : BaseEntity
 {
-    public string Id { get; set; }
-    
     public string Token { get; set; }
     
     public DateTime Expires { get; set; }

@@ -8,5 +8,5 @@ public interface IJwtManager
 {
     Task<OperationResult<User>> GetUserRefreshTokenAsync();
     
-    Task<AuthResponse> GenerateTokensAsync(User user);
+    Task<IResponse> GenerateTokensAsync(User user);
 }

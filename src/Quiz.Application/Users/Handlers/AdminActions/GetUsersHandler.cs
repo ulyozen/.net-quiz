@@ -1,14 +1,22 @@
 using MediatR;
+using Quiz.Application.Common;
+using Quiz.Application.Users.Dtos;
 using Quiz.Application.Users.Queries;
-using Quiz.Core.Abstractions;
-using Quiz.Core.Entities;
+using Quiz.Core.Common;
+using Quiz.Core.Repositories;
 
 namespace Quiz.Application.Users.Handlers.AdminActions;
 
-public class GetUsersHandler(IAdminRepository repo) : IRequestHandler<GetUsersQuery, IEnumerable<User>>
+public class GetUsersHandler : IRequestHandler<GetUsersQuery, PaginationResult<UsersResponse>>
 {
-    public async Task<IEnumerable<User>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
+    private readonly IAdminRepository _repo;
+    
+    public GetUsersHandler(IAdminRepository repo) => _repo = repo;
+    
+    public async Task<PaginationResult<UsersResponse>> Handle(GetUsersQuery query, CancellationToken cancellationToken)
     {
-        return await repo.GetUsersAsync();
+        var result = await _repo.GetUsersAsync(query.Page, query.PageSize);
+
+        return result.MapToPaginationResult();
     }
 }

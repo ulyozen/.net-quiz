@@ -2,6 +2,7 @@ using MediatR;
 using Quiz.Application.Users.Commands.AdminActions;
 using Quiz.Core.Abstractions;
 using Quiz.Core.Common;
+using Quiz.Core.Repositories;
 
 namespace Quiz.Application.Users.Handlers.AdminActions;
 

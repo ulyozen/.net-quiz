@@ -6,59 +6,56 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quiz.Application.Abstractions;
 using Quiz.Application.Common;
+using Quiz.Application.Users.Dtos;
 using Quiz.Core.Abstractions;
 using Quiz.Core.Common;
 using Quiz.Core.Entities;
+using Quiz.Core.Repositories;
 
 namespace Quiz.Api.Services;
 
-public class JwtManager(IOptions<JwtOptions> options, IRefreshTokenCookieManager cookie, IAuthRepository repo) 
-    : IJwtManager
+public class JwtManager(IOptions<JwtOptions> options, 
+    IRefreshTokenCookieManager cookie, IAuthRepository repo) : IJwtManager
 {
     public async Task<OperationResult<User>> GetUserRefreshTokenAsync()
     {
         var refreshToken = cookie.GetRefreshTokenCookie();
         if (!refreshToken.Success)
-            return OperationResult<User>.Failure(refreshToken.Errors!);
+            return OperationResult<User>.Failure(refreshToken.Errors);
         
         var result = await repo.GetUserAsync(refreshToken.Data!);
         
         return !result.Success
-            ? OperationResult<User>.Failure(result.Errors!)
+            ? OperationResult<User>.Failure(result.Errors)
             : OperationResult<User>.SuccessResult(result.Data!);
     }
     
-    public async Task<AuthResponse> GenerateTokensAsync(User user)
+    public async Task<IResponse> GenerateTokensAsync(User user)
     {
         var accessToken = GenerateAccessToken(user);
         var refreshToken = await ManageRefreshTokenAsync(user);
         
         return !refreshToken.Success
-            ? new AuthResponse { Success = false, Errors = refreshToken.Errors }
-            : new AuthResponse
-            {
-                Success = true,
-                Token = accessToken,
-                User = user.MapToUserInfo()
-            };
+            ? new ErrorResponse(refreshToken.Message, refreshToken.Errors)
+            : new AuthResponse(accessToken, user.MapToUserResponse());
     }
     
     private TokenResponse GenerateAccessToken(User user)
     {
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Secret!));
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.JWT_SECRET));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        var tokenExpires = DateTime.UtcNow.AddMinutes(double.Parse(options.Value.AccessTokenExpiryMinutes!));
+        var tokenExpires = DateTime.UtcNow.AddMinutes(options.Value.ACCESS_TOKEN_EXPIRY_MINUTES);
         
         var claims = new List<Claim>
         {
-            new (JwtRegisteredClaimNames.Sub, user.Id!),
+            new (JwtRegisteredClaimNames.Sub, user.Id),
             new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-            new (JwtRegisteredClaimNames.Iss, options.Value.Issuer!),
+            new (JwtRegisteredClaimNames.Iss, options.Value.JWT_ISSUER),
         };
         
         var token = new JwtSecurityToken(
-            issuer: options.Value.Issuer,
-            audience: options.Value.Audience,
+            issuer: options.Value.JWT_ISSUER,
+            audience: options.Value.JWT_AUDIENCE,
             claims: claims,
             expires: tokenExpires,
             signingCredentials: credentials
@@ -73,7 +70,7 @@ public class JwtManager(IOptions<JwtOptions> options, IRefreshTokenCookieManager
     
     private async Task<OperationResult> ManageRefreshTokenAsync(User user)
     {
-        var expiresIn = options.Value.RefreshTokenExpiryDays!;
+        var expiresIn = options.Value.REFRESH_TOKEN_EXPIRY_DAYS;
         var oldRefreshToken = cookie.GetRefreshTokenCookie();
         var newRefreshToken = GenerateRefreshToken();
 
@@ -82,7 +79,7 @@ public class JwtManager(IOptions<JwtOptions> options, IRefreshTokenCookieManager
             : await repo.AddRefreshTokenAsync(user, newRefreshToken, expiresIn);
         
         if (!result.Success)
-            return OperationResult.Failure(result.Errors!);
+            return OperationResult.Failure(result.Errors);
         
         cookie.SetRefreshTokenCookie(newRefreshToken, expiresIn, user.RememberMe);
         

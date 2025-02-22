@@ -1,12 +1,17 @@
 using DotNetEnv;
+using Quiz.Api.Configuration;
 using Quiz.Api.Extensions;
-using Quiz.Persistence.Common;
+using Quiz.Elasticsearch.Extensions;
+using Quiz.Persistence.Extensions;
+using Quiz.Redis.Extensions;
+using Quiz.Serilog.Extensions;
+using Serilog;
+using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
-Env.Load();
 
+Env.Load();
 builder.Configuration.AddEnvironmentVariables();
-builder.Services.AddEnvironmentVariables(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -14,16 +19,24 @@ builder.Services.AddSwaggerGen(SwaggerConfiguration.Configure);
 builder.Services.AddSignalR();
 
 builder.Services
-    .AddApplicationExtension()
-    .AddJwtSupport()
-    .AddDbSettings()
-    .AddCorsSupport()
+    .AddEnvironmentVariables(builder.Configuration)
     .AddMediatrAndFluentValidation()
+    .AddApplicationDependencies()
     .AddHttpContextAccessor()
-    .AddRedis()
-    .AddIdentityCore();
+    .AddElasticsearch()
+    .AddIdentityCore()
+    .AddCorsSupport()
+    .AddJwtSupport()
+    .AddPostgreSql()
+    .AddRedis();
+
+builder.Host.AddSerilogSupport();
 
 var app = builder.Build();
+
+app.UseNginxForwardedHeaders();
+
+app.UseSerilogRequestLogging();
 
 app.UseSwagger();
 app.UseSwaggerUI();

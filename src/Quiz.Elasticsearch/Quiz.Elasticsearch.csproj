@@ -6,4 +6,17 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Elastic.Apm.SerilogEnricher" Version="8.12.3" />
+      <PackageReference Include="Elastic.Clients.Elasticsearch" Version="8.17.1" />
+      <PackageReference Include="Elastic.CommonSchema.Serilog" Version="8.12.3" />
+      <PackageReference Include="Elastic.Serilog.Enrichers.Web" Version="8.12.3" />
+      <PackageReference Include="Elastic.Serilog.Sinks" Version="8.12.3" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Quiz.Application\Quiz.Application.csproj" />
+    </ItemGroup>
+
 </Project>
