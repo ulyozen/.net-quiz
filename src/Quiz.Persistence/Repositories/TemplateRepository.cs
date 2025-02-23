@@ -67,6 +67,8 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
         
         await AddAllowUsersAsync(templateEntity, template);
         
+        await context.SaveChangesAsync();
+        
         return OperationResult.SuccessResult();
     }
     
@@ -109,13 +111,33 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
     private async Task AddTemplateTagsAsync(TemplateEntity templateEntity, Template template)
     {
         var tags = template.TemplateMetadata.Tags;
+        
         var existingTags = await context.Tags
             .Where(t => tags.Contains(t.Name))
             .ToListAsync();
+
+        await AddTagsAsync(tags, existingTags);
         
         var templateTags = existingTags.MapToTemplateTag(templateEntity);
         
         await context.TemplateTags.AddRangeAsync(templateTags);
+    }
+    
+    private async Task AddTagsAsync(IReadOnlyList<string> tags, List<TagEntity> existingTags)
+    {
+        var newTagNames = tags.Except(existingTags.Select(t => t.Name)).ToList();
+        
+        if (newTagNames.Count == 0) return;
+        
+        var newTags = newTagNames.Select(tagName => new TagEntity
+        {
+            Id = guidFactory.Create(),
+            Name = tagName
+        }).ToList();
+        
+        await context.Tags.AddRangeAsync(newTags);
+        
+        existingTags.AddRange(newTags);
     }
     
     private async Task AddAllowUsersAsync(TemplateEntity templateEntity, Template template)

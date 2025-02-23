@@ -12,7 +12,7 @@ using Quiz.Persistence.Context;
 namespace Quiz.Persistence.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250217204304_repo")]
+    [Migration("20250223101713_repo")]
     partial class repo
     {
         /// <inheritdoc />
@@ -165,10 +165,8 @@ namespace Quiz.Persistence.Migrations
                     b.Property<string>("TemplateId")
                         .HasColumnType("text");
 
-                    b.Property<string>("Id")
-                        .HasColumnType("text");
-
-                    b.HasKey("UserId", "TemplateId");
+                    b.HasKey("UserId", "TemplateId")
+                        .HasName("PK_Composite_AllowedUsers");
 
                     b.HasIndex("TemplateId")
                         .HasDatabaseName("IX_TemplateId_AllowedUsers");
@@ -392,6 +390,15 @@ namespace Quiz.Persistence.Migrations
                     b.Property<string>("Id")
                         .HasColumnType("text");
 
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("AuthorName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
@@ -427,18 +434,9 @@ namespace Quiz.Persistence.Migrations
                     b.Property<string>("UpdatedBy")
                         .HasColumnType("text");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId")
+                    b.HasIndex("AuthorId")
                         .HasDatabaseName("IX_Templates_UserId");
 
                     b.ToTable("Templates", (string)null);
@@ -446,24 +444,33 @@ namespace Quiz.Persistence.Migrations
 
             modelBuilder.Entity("Quiz.Persistence.Entities.TemplateTagEntity", b =>
                 {
-                    b.Property<string>("Id")
+                    b.Property<string>("TemplateId")
                         .HasColumnType("text");
 
                     b.Property<string>("TagId")
-                        .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("TemplateId")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
+                    b.HasKey("TemplateId", "TagId")
+                        .HasName("PK_Composite_TemplateTags");
 
                     b.HasIndex("TagId");
 
-                    b.HasIndex("TemplateId");
-
                     b.ToTable("TemplateTags", (string)null);
+                });
+
+            modelBuilder.Entity("Quiz.Persistence.Entities.TopicEntity", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Topics", (string)null);
                 });
 
             modelBuilder.Entity("Quiz.Persistence.Entities.UserEntity", b =>
@@ -723,7 +730,7 @@ namespace Quiz.Persistence.Migrations
                 {
                     b.HasOne("Quiz.Persistence.Entities.UserEntity", "UserEntity")
                         .WithMany("Templates")
-                        .HasForeignKey("UserId")
+                        .HasForeignKey("AuthorId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
@@ -733,15 +740,15 @@ namespace Quiz.Persistence.Migrations
             modelBuilder.Entity("Quiz.Persistence.Entities.TemplateTagEntity", b =>
                 {
                     b.HasOne("Quiz.Persistence.Entities.TagEntity", "Tag")
-                        .WithMany("Tags")
+                        .WithMany("Templates")
                         .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("Quiz.Persistence.Entities.TemplateEntity", "Template")
-                        .WithMany("Tags")
+                        .WithMany("TemplateTags")
                         .HasForeignKey("TemplateId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Tag");
@@ -761,7 +768,7 @@ namespace Quiz.Persistence.Migrations
 
             modelBuilder.Entity("Quiz.Persistence.Entities.TagEntity", b =>
                 {
-                    b.Navigation("Tags");
+                    b.Navigation("Templates");
                 });
 
             modelBuilder.Entity("Quiz.Persistence.Entities.TemplateEntity", b =>
@@ -776,7 +783,7 @@ namespace Quiz.Persistence.Migrations
 
                     b.Navigation("Submissions");
 
-                    b.Navigation("Tags");
+                    b.Navigation("TemplateTags");
                 });
 
             modelBuilder.Entity("Quiz.Persistence.Entities.UserEntity", b =>

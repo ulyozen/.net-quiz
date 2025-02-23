@@ -15,10 +15,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Templates\Validators\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\Quiz.Core\Quiz.Core.csproj" />
     </ItemGroup>
 

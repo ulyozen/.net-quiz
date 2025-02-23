@@ -50,7 +50,7 @@ public class TemplateConfig : IEntityTypeConfiguration<TemplateEntity>
         
         builder.Property(t => t.CreatedBy)
             .HasColumnType("text")
-            .IsRequired();
+            .IsRequired(false);
         
         builder.Property(t => t.UpdatedBy)
             .HasColumnType("text")

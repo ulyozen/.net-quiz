@@ -40,12 +40,12 @@ public class AdminRepository : IAdminRepository
                     .Join(_context.Roles, ur => ur.RoleId, r => r.Id, (ur, r) => r.Name)
                     .ToList()
             })
-            .OrderBy(u => u.User.UserName)
+            .OrderBy(u => u.User.Email)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
         
-        var users = result.Select(u => User.Restore(u.User.Id, u.User.UserName, 
+        var users = result.Select(u => User.Restore(u.User.Id, u.User.Name, 
             u.User.Email, u.User.IsBlocked, u.Roles)).ToList();
 
         return PaginationResult<User>.Create(users, totalCount, page, pageSize);

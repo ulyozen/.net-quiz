@@ -5,5 +5,5 @@ namespace Quiz.Application.Templates.Commands;
 
 public class UpdateTemplateCommand : IRequest<OperationResult>
 {
-    
+    public string TemplateId { get; set; }
 }

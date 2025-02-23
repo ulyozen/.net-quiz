@@ -84,13 +84,13 @@ namespace Quiz.Persistence.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "text", nullable: false),
-                    Username = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    AuthorId = table.Column<string>(type: "text", nullable: false),
+                    AuthorName = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Title = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     Description = table.Column<string>(type: "text", nullable: false),
                     Topic = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
                     IsPublic = table.Column<bool>(type: "boolean", nullable: false, defaultValue: true),
                     ImageUrl = table.Column<string>(type: "text", nullable: true),
-                    UserId = table.Column<string>(type: "text", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     UpdatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     CreatedBy = table.Column<string>(type: "text", nullable: false),
@@ -100,11 +100,23 @@ namespace Quiz.Persistence.Migrations
                 {
                     table.PrimaryKey("PK_Templates", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Templates_AspNetUsers_UserId",
-                        column: x => x.UserId,
+                        name: "FK_Templates_AspNetUsers_AuthorId",
+                        column: x => x.AuthorId,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Topics",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "text", nullable: false),
+                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Topics", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -112,12 +124,11 @@ namespace Quiz.Persistence.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "text", nullable: false),
-                    TemplateId = table.Column<string>(type: "text", nullable: false),
-                    Id = table.Column<string>(type: "text", nullable: true)
+                    TemplateId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_AllowedUsers", x => new { x.UserId, x.TemplateId });
+                    table.PrimaryKey("PK_Composite_AllowedUsers", x => new { x.UserId, x.TemplateId });
                     table.ForeignKey(
                         name: "FK_AllowedUsers_AspNetUsers_UserId",
                         column: x => x.UserId,
@@ -243,25 +254,24 @@ namespace Quiz.Persistence.Migrations
                 name: "TemplateTags",
                 columns: table => new
                 {
-                    Id = table.Column<string>(type: "text", nullable: false),
                     TemplateId = table.Column<string>(type: "text", nullable: false),
                     TagId = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_TemplateTags", x => x.Id);
+                    table.PrimaryKey("PK_Composite_TemplateTags", x => new { x.TemplateId, x.TagId });
                     table.ForeignKey(
                         name: "FK_TemplateTags_Tags_TagId",
                         column: x => x.TagId,
                         principalTable: "Tags",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_TemplateTags_Templates_TemplateId",
                         column: x => x.TemplateId,
                         principalTable: "Templates",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -353,14 +363,9 @@ namespace Quiz.Persistence.Migrations
                 column: "TagId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_TemplateTags_TemplateId",
-                table: "TemplateTags",
-                column: "TemplateId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Templates_UserId",
                 table: "Templates",
-                column: "UserId");
+                column: "AuthorId");
         }
 
         /// <inheritdoc />
@@ -380,6 +385,9 @@ namespace Quiz.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "TemplateTags");
+
+            migrationBuilder.DropTable(
+                name: "Topics");
 
             migrationBuilder.DropTable(
                 name: "Questions");

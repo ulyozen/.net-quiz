@@ -39,14 +39,13 @@ public class Template : BaseEntity, IHasDomainEvent
     private Template(string templateId) => Id = templateId;
     
     private Template(TemplateMetadata metadata, string authorId, string authorName, string imageUrl, 
-        DateTime createdAt, DateTime updatedAt)
+        DateTime createdAt)
     {
         TemplateMetadata = metadata;
         AuthorId = authorId;
         AuthorName = authorName;
         ImageUrl = imageUrl;
         CreatedAt = createdAt;
-        UpdatedAt = updatedAt;
         
         _domainEvents.Add(TemplateEvent.Create(metadata.Title));
     }
@@ -117,10 +116,9 @@ public class Template : BaseEntity, IHasDomainEvent
     
     public void ClearDomainEvents() => _domainEvents.Clear();
     
-    public static Template Create(TemplateMetadata metadata, string authorId, string authorName, string imageUrl, 
-        DateTime createdAt, DateTime updatedAt)
+    public static Template Create(TemplateMetadata metadata, string authorId, string authorName, string imageUrl, DateTime createdAt)
     {
-        return new Template(metadata, authorId, authorName, imageUrl, createdAt, updatedAt);
+        return new Template(metadata, authorId, authorName, imageUrl, createdAt);
     }
     
     public static Template Restore(string templateId, TemplateMetadata metadata, string authorId, string authorName, string imageUrl, 

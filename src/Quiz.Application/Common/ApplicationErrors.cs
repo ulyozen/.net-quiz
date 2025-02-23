@@ -21,4 +21,14 @@ public static class ApplicationErrors
         public const string UserIdRequired = "UserId cannot be empty.";
         public const string RoleRequired   = "Role cannot be empty.";
     }
+
+    public static class Template
+    {
+        public const string TitleRequired       = "Title cannot be empty.";
+        public const string DescriptionRequired = "Description cannot be empty.";
+        public const string TopicRequired       = "Topic cannot be empty.";
+        public const string AuthorIdRequired    = "AuthorId cannot be empty.";
+        public const string AuthorNameRequired  = "AuthorName cannot be empty.";
+        public const string IsPublicRequired    = "Template has to be public or private status.";
+    }
 }
