@@ -22,4 +22,10 @@ public static class DomainErrors
         public const string RefreshTokenMissing  = "Refresh token is missing.";
         public const string RefreshTokenNotFound = "Refresh token not found.";
     }
+    
+    public static class Template
+    {
+        public const string TemplateIdRequired = "Template ID cannot be empty.";
+        public const string TemplateNotFound   = "Template not found.";
+    }
 }

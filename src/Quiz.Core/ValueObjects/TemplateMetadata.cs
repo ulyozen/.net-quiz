@@ -17,6 +17,15 @@ public class TemplateMetadata
     public IReadOnlyList<string> Tags => _tags;
     
     public IReadOnlyList<string>? AllowedUsers => _allowedUsers;
+
+    private TemplateMetadata(string title, string description, string topic, bool isPublic, List<string> tags)
+    {
+        Title = title;
+        Description = description;
+        Topic = topic;
+        IsPublic = isPublic;
+        _tags = tags;
+    }
     
     private TemplateMetadata(string title, string description, string topic, bool isPublic, 
         List<string> tags, List<string> allowedUsers)
@@ -32,6 +41,12 @@ public class TemplateMetadata
         
         _tags = tags;
         _allowedUsers = allowedUsers;
+    }
+    
+    public static TemplateMetadata Create(string title, string description, string topic, bool isPublic, 
+        List<string> tags)
+    {
+        return new TemplateMetadata(title, description, topic, isPublic, tags);
     }
     
     public static TemplateMetadata Create(string title, string description, string topic, bool isPublic,

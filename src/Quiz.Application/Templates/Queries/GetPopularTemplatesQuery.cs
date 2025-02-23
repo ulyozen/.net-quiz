@@ -1,10 +1,6 @@
 using MediatR;
-using Quiz.Core.Common;
-using Quiz.Core.Entities;
+using Quiz.Application.Templates.Dtos;
 
 namespace Quiz.Application.Templates.Queries;
 
-public class GetPopularTemplatesQuery : IRequest<PaginationResult<Template>>
-{
-    
-}
+public class GetPopularTemplatesQuery : IRequest<IEnumerable<PopularTemplate>>;

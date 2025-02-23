@@ -2,6 +2,7 @@ using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Quiz.Application.Templates.Commands;
+using Quiz.Application.Templates.Dtos;
 using Quiz.Application.Templates.Queries;
 using Quiz.Core.Common;
 using Quiz.Core.Entities;
@@ -73,7 +74,8 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
         [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetTemplateById([FromRoute] string id)
         {
-            if (string.IsNullOrWhiteSpace(id)) return BadRequest(id);
+            if (string.IsNullOrWhiteSpace(id)) 
+                return BadRequest(DomainErrors.Template.TemplateIdRequired);
             
             var query = new GetTemplateByIdQuery { TemplateId = id };
             
@@ -81,7 +83,12 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
             
             if (result.Success) return Ok(result);
             
-            logger.LogError(result.Message, result.Errors);
+            if (result.Errors.Contains(DomainErrors.Template.TemplateNotFound))
+                return NotFound();
+            
+            logger.LogError(
+                "Error retrieving template: {Message}. Details: {@Errors}", 
+                result.Message, result.Errors);
             
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
@@ -113,7 +120,9 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
             
             if (result.Success) return Ok();
             
-            logger.LogError(result.Message, result.Errors);
+            logger.LogError(
+                "Error creating template: {Message}. Details: {@Errors}", 
+                result.Message, result.Errors);
             
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
@@ -145,7 +154,8 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
         [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateTemplate([FromRoute] string id, [FromBody] UpdateTemplateCommand command)
         {
-            if (string.IsNullOrWhiteSpace(id)) return BadRequest(id);
+            if (string.IsNullOrWhiteSpace(id)) 
+                return BadRequest(DomainErrors.Template.TemplateIdRequired);
 
             command.TemplateId = id;
             
@@ -153,7 +163,9 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
             
             if (result.Success) return Ok();
             
-            logger.LogError(result.Message, result.Errors);
+            logger.LogError(
+                "Error updating template: {Message}. Details: {@Errors}", 
+                result.Message, result.Errors);
             
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
@@ -183,7 +195,8 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
         [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteTemplate([FromRoute] string id)
         {
-            if (string.IsNullOrWhiteSpace(id)) return BadRequest(id);
+            if (string.IsNullOrWhiteSpace(id)) 
+                return BadRequest(DomainErrors.Template.TemplateIdRequired);
             
             var command = new DeleteTemplateCommand { TemplateId = id };
             
@@ -191,7 +204,9 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
             
             if (result.Success) return Ok();
 
-            logger.LogError(result.Message, result.Errors);
+            logger.LogError(
+                "Error deleting template: {Message}. Details: {@Errors}", 
+                result.Message, result.Errors);
             
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
@@ -221,7 +236,8 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
         [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetTemplateSubmissions([FromRoute] string id)
         {
-            if (string.IsNullOrWhiteSpace(id)) return BadRequest(id);
+            if (string.IsNullOrWhiteSpace(id)) 
+                return BadRequest(DomainErrors.Template.TemplateIdRequired);
             
             var query = new GetTemplateSubmissionsQuery { TemplateId = id };
             
@@ -229,13 +245,15 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
             
             if (result.Success) return Ok(result);
             
-            logger.LogError(result.Message, result.Errors);
+            logger.LogError(
+                "Error retrieving template's submissions: {Message}. Details: {@Errors}", 
+                result.Message, result.Errors);
             
             return StatusCode(StatusCodes.Status500InternalServerError);
         }
         
         /// <summary>
-        /// Retrieve a list of popular templates.
+        /// Retrieve a list of five popular templates.
         /// </summary>
         /// <remarks>
         /// <exclude>
@@ -248,14 +266,15 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
         /// </ul>
         /// </exclude>
         /// </remarks>
-        /// <param name="query">The query parameters for retrieving popular templates.</param>
         /// <returns>Returns an HTTP response with the list of popular templates.</returns>
         [HttpGet("popular")]
-        [ProducesResponseType(typeof(PaginationResult<Template>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         [AllowAnonymous]
-        public async Task<IActionResult> GetPopularTemplates(GetPopularTemplatesQuery query)
+        [ProducesResponseType(typeof(IEnumerable<PopularTemplate>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetPopularTemplates()
         {
+            var query = new GetPopularTemplatesQuery();
+            
             var result = await mediator.Send(query);
             
             return Ok(result);

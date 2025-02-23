@@ -121,6 +121,14 @@ public class Template : BaseEntity, IHasDomainEvent
         return new Template(metadata, authorId, authorName, imageUrl, createdAt);
     }
     
+    public static Template Restore(string templateId, TemplateMetadata metadata)
+    {
+        return new Template(templateId)
+        {
+            TemplateMetadata = metadata
+        };
+    }
+    
     public static Template Restore(string templateId, TemplateMetadata metadata, string authorId, string authorName, string imageUrl, 
         DateTime createdAt, DateTime? updatedAt)
     {

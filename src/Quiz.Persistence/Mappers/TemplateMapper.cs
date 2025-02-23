@@ -13,16 +13,23 @@ public static class TemplateMapper
     
     public static Template MapToTemplate(this TemplateEntity entity)
     {
+        var tempMeta = entity.MapToTemplateMetadata();
+        
         return Template.Restore(
             entity.Id, 
-            entity.MapToTemplateMetadata(), 
+            tempMeta, 
             entity.AuthorId, 
             entity.AuthorName, 
             entity.ImageUrl, 
             entity.CreatedAt, 
             entity.UpdatedAt);
     }
-
+    
+    public static List<Template> MapToPopular(this IEnumerable<TemplateEntity> entities)
+    {
+        return entities.Select(MapToPopular).ToList();
+    }
+    
     public static void UpdateFieldsFrom(this TemplateEntity entity, Template template)
     {
         entity.Title       = template.TemplateMetadata.Title;
@@ -42,6 +49,7 @@ public static class TemplateMapper
             Title       = template.TemplateMetadata.Title,
             Description = template.TemplateMetadata.Description,
             Topic       = template.TemplateMetadata.Topic,
+            IsPublic    = template.TemplateMetadata.IsPublic,
             ImageUrl    = template.ImageUrl,
             CreatedAt   = template.CreatedAt,
             UpdatedAt   = template.UpdatedAt
@@ -57,6 +65,23 @@ public static class TemplateMapper
         });
     }
     
+    private static Template MapToPopular(this TemplateEntity entity)
+    {
+        var tempMeta = entity.MapToPopularTempMeta();
+        
+        return Template.Restore(entity.Id, tempMeta);
+    }
+    
+    private static TemplateMetadata MapToPopularTempMeta(this TemplateEntity entity)
+    {
+        return TemplateMetadata.Create(
+            entity.Title,
+            entity.Description,
+            entity.Topic,
+            entity.IsPublic,
+            entity.TemplateTags.Select(tt => tt.Tag.Name).ToList());
+    }
+    
     private static TemplateMetadata MapToTemplateMetadata(this TemplateEntity entity)
     {
         return TemplateMetadata.Create(
@@ -65,6 +90,8 @@ public static class TemplateMapper
             entity.Topic,
             entity.IsPublic,
             entity.TemplateTags.Select(tt => tt.Tag.Name).ToList(),
-            entity.AllowedUsers.Select(au => au.UserId).ToList());
+            entity.IsPublic
+                ? []
+                : entity.AllowedUsers.Select(au => au.UserId).ToList());
     }
 }

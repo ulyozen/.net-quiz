@@ -20,8 +20,8 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
                 .ThenInclude(t => t.Tag)
             .FirstOrDefaultAsync(t => t.Id == templateId);
         
-        return template is null 
-            ? OperationResult<Template>.Failure("Template not found")
+        return template is null
+            ? OperationResult<Template>.Failure(DomainErrors.Template.TemplateNotFound)
             : OperationResult<Template>.SuccessResult(template.MapToTemplate());
     }
     
@@ -46,17 +46,24 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
     
     public async Task<IEnumerable<Template>> GetPopularTemplatesAsync(int countTemp = 5)
     {
-        return (await context.Templates
-            .Select(t => new
-            {
-                Template = t,
-                SubmissionCount = context.Submissions.Count(s => s.TemplateId == t.Id),
-            })
+        var templates = await context.Templates
+            .Include(t => t.TemplateTags)
+                .ThenInclude(t => t.Tag)
+            .GroupJoin(
+                context.Submissions,
+                template => template.Id,
+                submission => submission.TemplateId,
+                (template, submission) => new
+                {
+                    Template = template, 
+                    SubmissionCount = submission.Count()
+                })
             .OrderByDescending(t => t.SubmissionCount)
             .Take(countTemp)
             .Select(t => t.Template)
-            .ToListAsync())
-            .MapToTemplates();
+            .ToListAsync();
+        
+        return templates.MapToPopular();
     }
     
     public async Task<OperationResult> AddAsync(Template template)
@@ -152,7 +159,7 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
         
         await context.AllowedUsers.AddRangeAsync(allowedUsers);
     }
-
+    
     private async Task ApplyTemplateUpdatesAsync(TemplateEntity templateEntity, Template template)
     {
         templateEntity.UpdateFieldsFrom(template);
