@@ -6,7 +6,7 @@ namespace Quiz.MinIo.Repositories;
 
 public class MinioRepository : IBlobRepository
 {
-    public Task<OperationResult<string>> UploadFileAsync(IFormFile file)
+    public Task<OperationResult<string>> UploadFileAsync(BlobObject file)
     {
         throw new NotImplementedException();
     }
