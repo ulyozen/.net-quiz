@@ -1,3 +1,5 @@
+using System.Text.Json;
+using Quiz.Core.DomainEnums;
 using Quiz.Core.Entities;
 using Quiz.Core.ValueObjects;
 using Quiz.Persistence.Entities;
@@ -15,6 +17,15 @@ public static class TemplateMapper
     {
         var tempMeta = entity.MapToTemplateMetadata();
         
+        var questions = entity.Questions.Select(que => 
+            Question.Restore(
+                que.Id, 
+                que.Title, 
+                que.QuestionType,
+                que.Options is null 
+                    ? null 
+                    : JsonSerializer.Deserialize<List<string>>(que.Options))).ToList();
+        
         return Template.Restore(
             entity.Id, 
             tempMeta, 
@@ -22,7 +33,8 @@ public static class TemplateMapper
             entity.AuthorName, 
             entity.ImageUrl, 
             entity.CreatedAt, 
-            entity.UpdatedAt);
+            entity.UpdatedAt,
+            questions);
     }
     
     public static List<Template> MapToPopular(this IEnumerable<TemplateEntity> entities)
@@ -41,6 +53,16 @@ public static class TemplateMapper
     
     public static TemplateEntity MapToEntity(this Template template, string templateId)
     {
+        var questions = template.Questions.Select(question => new QuestionEntity
+        {
+            Id             = question.Id,
+            TemplateId     = templateId,
+            Title          = question.Title,
+            QuestionType   = question.QuestionType,
+            Options        = question.Options is null ? null : JsonSerializer.Serialize(question.Options),
+            CorrectAnswers = question.CorrectAnswers is null ? null : JsonSerializer.Serialize(question.CorrectAnswers)
+        }).ToList();
+        
         return new TemplateEntity
         {
             Id          = templateId,
@@ -52,7 +74,8 @@ public static class TemplateMapper
             IsPublic    = template.TemplateMetadata.IsPublic,
             ImageUrl    = template.ImageUrl,
             CreatedAt   = template.CreatedAt,
-            UpdatedAt   = template.UpdatedAt
+            UpdatedAt   = template.UpdatedAt,
+            Questions   = questions
         };
     }
     
@@ -61,15 +84,13 @@ public static class TemplateMapper
         return tags.Select(t => new TemplateTag
         {
             TemplateId = templateEntity.Id,
-            TagId = t.Id,
+            TagId      = t.Id,
         });
     }
     
     private static Template MapToPopular(this TemplateEntity entity)
     {
-        var tempMeta = entity.MapToPopularTempMeta();
-        
-        return Template.Restore(entity.Id, tempMeta);
+        return Template.Restore(entity.Id, entity.MapToPopularTempMeta());
     }
     
     private static TemplateMetadata MapToPopularTempMeta(this TemplateEntity entity)

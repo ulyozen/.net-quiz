@@ -14,6 +14,7 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
     public async Task<OperationResult<Template>> GetByIdAsync(string templateId)
     {
         var template = await context.Templates
+            .Include(t => t.Questions)
             .Include(t => t.Comments)
             .Include(t => t.Likes)
             .Include(tt => tt.TemplateTags)
@@ -68,15 +69,30 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
     
     public async Task<OperationResult> AddAsync(Template template)
     {
-        var templateEntity = await AddTemplateAsync(template);
+        await using var transaction = await context.Database.BeginTransactionAsync();
         
-        await AddTemplateTagsAsync(templateEntity, template);
-        
-        await AddAllowUsersAsync(templateEntity, template);
-        
-        await context.SaveChangesAsync();
-        
-        return OperationResult.SuccessResult();
+        try
+        {
+            var templateEntity = await AddTemplateAsync(template);
+            
+            await AddQuestionsAsync(templateEntity);
+            
+            await AddTemplateTagsAsync(templateEntity, template);
+            
+            await AddAllowUsersAsync(templateEntity, template);
+            
+            await context.SaveChangesAsync();
+            
+            await transaction.CommitAsync();
+            
+            return OperationResult.SuccessResult();
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            
+            return OperationResult.Failure(e);
+        }
     }
     
     public async Task<OperationResult> UpdateAsync(Template template)
@@ -98,16 +114,23 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
     
     public async Task<OperationResult> DeleteAsync(string templateId)
     {
-        var existingTemplate = await context.Templates.FindAsync(templateId);
-        
-        if (existingTemplate is null) 
-            return OperationResult.Failure(DomainErrors.Template.TemplateNotFound);
-        
-        context.Templates.Remove(existingTemplate);
-        
-        await context.SaveChangesAsync();
-        
-        return OperationResult.SuccessResult();
+        try
+        {
+            var existingTemplate = await context.Templates.FindAsync(templateId);
+            
+            if (existingTemplate is null) 
+                return OperationResult.Failure(DomainErrors.Template.TemplateNotFound);
+            
+            context.Templates.Remove(existingTemplate);
+            
+            await context.SaveChangesAsync();
+            
+            return OperationResult.SuccessResult();
+        }
+        catch (Exception e)
+        {
+            return OperationResult.Failure(e);
+        }
     }
     
     private async Task<TemplateEntity> AddTemplateAsync(Template template)
@@ -117,6 +140,11 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
         await context.Templates.AddAsync(templateEntity);
         
         return templateEntity;
+    }
+    
+    private async Task AddQuestionsAsync(TemplateEntity templateEntity)
+    {
+        await context.Questions.AddRangeAsync(templateEntity.Questions);
     }
     
     private async Task AddTemplateTagsAsync(TemplateEntity templateEntity, Template template)

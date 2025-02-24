@@ -22,7 +22,7 @@ public class QuestionConfig : IEntityTypeConfiguration<QuestionEntity>
         builder.HasOne(q => q.Template)
             .WithMany(q => q.Questions)
             .HasForeignKey(q => q.TemplateId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
         
         builder.Property(q => q.Options)
             .HasColumnType("jsonb");

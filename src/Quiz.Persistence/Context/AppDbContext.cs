@@ -15,6 +15,8 @@ public class AppDbContext : IdentityDbContext<UserEntity>
     
     public DbSet<LikeEntity> Likes { get; set; }
     
+    public DbSet<QuestionEntity> Questions { get; set; }
+    
     public DbSet<RefreshTokenEntity> RefreshTokens { get; set; }
     
     public DbSet<SubmissionEntity> Submissions { get; set; }

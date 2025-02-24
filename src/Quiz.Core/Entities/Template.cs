@@ -38,14 +38,23 @@ public class Template : BaseEntity, IHasDomainEvent
     
     private Template(string templateId) => Id = templateId;
     
+    private Template(string templateId, List<Question> questions)
+    { 
+        Id = templateId;
+        
+        _questions.AddRange(questions);
+    } 
+    
     private Template(TemplateMetadata metadata, string authorId, string authorName, string imageUrl, 
-        DateTime createdAt)
+        DateTime createdAt, List<Question> questions)
     {
         TemplateMetadata = metadata;
         AuthorId = authorId;
         AuthorName = authorName;
         ImageUrl = imageUrl;
         CreatedAt = createdAt;
+        
+        _questions = questions;
         
         _domainEvents.Add(TemplateEvent.Create(metadata.Title));
     }
@@ -116,9 +125,10 @@ public class Template : BaseEntity, IHasDomainEvent
     
     public void ClearDomainEvents() => _domainEvents.Clear();
     
-    public static Template Create(TemplateMetadata metadata, string authorId, string authorName, string imageUrl, DateTime createdAt)
+    public static Template Create(TemplateMetadata metadata, string authorId, string authorName, 
+        string imageUrl, DateTime createdAt, List<Question> questions)
     {
-        return new Template(metadata, authorId, authorName, imageUrl, createdAt);
+        return new Template(metadata, authorId, authorName, imageUrl, createdAt, questions);
     }
     
     public static Template Restore(string templateId, TemplateMetadata metadata)
@@ -130,16 +140,16 @@ public class Template : BaseEntity, IHasDomainEvent
     }
     
     public static Template Restore(string templateId, TemplateMetadata metadata, string authorId, string authorName, string imageUrl, 
-        DateTime createdAt, DateTime? updatedAt)
+        DateTime createdAt, DateTime? updatedAt, List<Question> questions)
     {
-        return new Template(templateId)
+        return new Template(templateId, questions)
         {
             TemplateMetadata = metadata,
             AuthorId = authorId,
             AuthorName = authorName,
             ImageUrl = imageUrl,
             CreatedAt = createdAt,
-            UpdatedAt = updatedAt
+            UpdatedAt = updatedAt,
         };
     }
 }
