@@ -104,14 +104,15 @@ public class AuthController(IMediator mediator, ILogger<AuthController> logger) 
     /// </ul>
     /// </exclude>
     /// </remarks>
-    /// <param name="command">RefreshToken</param>
     /// <returns>Returns a new access token or an error response</returns>
     [HttpPost("refresh-token")]
     [ProducesResponseType(typeof(AuthResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ErrorResponse), StatusCodes.Status401Unauthorized)]
-    public async Task<IActionResult> RefreshToken([FromBody] RefreshTokenCommand command)
+    public async Task<IActionResult> RefreshToken()
     {
+        var command = new RefreshTokenCommand();
+        
         var result = await mediator.Send(command);
         
         if (result is not ErrorResponse error) return Ok(result);
@@ -170,12 +171,13 @@ public class AuthController(IMediator mediator, ILogger<AuthController> logger) 
     /// </ul>
     /// </exclude>
     /// </remarks>
-    /// <param name="command">Logout</param>
     /// <returns>Returns a success response</returns>
     [HttpPost("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<IActionResult> Logout([FromBody] LogoutCommand command)
+    public async Task<IActionResult> Logout()
     {
+        var command = new LogoutCommand();
+        
         await mediator.Send(command);
         
         return Ok();

@@ -72,7 +72,8 @@ public class AdminController(IMediator mediator, ILogger<AdminController> logger
     [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> BlockUser([FromRoute] string id)
     {
-        if (string.IsNullOrEmpty(id)) return BadRequest(id);
+        if (string.IsNullOrEmpty(id)) 
+            return BadRequest(DomainErrors.Auth.RequestIdRequired);
         
         var result = await mediator.Send(new BlockCommand { UserId = id });
         
@@ -114,7 +115,8 @@ public class AdminController(IMediator mediator, ILogger<AdminController> logger
     [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> UnblockUser([FromRoute] string id)
     {
-        if (string.IsNullOrEmpty(id)) return BadRequest(id);
+        if (string.IsNullOrEmpty(id)) 
+            return BadRequest(DomainErrors.Auth.RequestIdRequired);
         
         var result = await mediator.Send(new UnblockCommand { UserId = id });
         
@@ -206,7 +208,8 @@ public class AdminController(IMediator mediator, ILogger<AdminController> logger
     [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> DeleteUser([FromRoute] string id)
     {
-        if (string.IsNullOrEmpty(id)) return BadRequest(id);
+        if (string.IsNullOrEmpty(id)) 
+            return BadRequest(DomainErrors.Auth.RequestIdRequired);
         
         var result = await mediator.Send(new DeleteCommand { UserId = id });
         

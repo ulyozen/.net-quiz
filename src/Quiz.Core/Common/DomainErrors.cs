@@ -15,6 +15,7 @@ public static class DomainErrors
     
     public static class Auth
     {
+        public const string RequestIdRequired    = "ID cannot be empty.";
         public const string EmailAlreadyExists   = "Email already exists.";
         public const string EmailNotFound        = "Email does not exist.";
         public const string InvalidPassword      = "Incorrect password.";
