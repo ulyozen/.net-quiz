@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using Quiz.Application.Abstractions;
+using Quiz.Core.Common;
 using Serilog.Context;
 
 namespace Quiz.Api.Middlewares;
@@ -16,7 +17,7 @@ public class UserBlockMiddleware(IUserCache cache) : IMiddleware
             if (isBlocked)
             {
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
-                await context.Response.WriteAsync("User is blocked.");
+                await context.Response.WriteAsync(DomainErrors.User.UserBlocked);
                 return;
             }
         }
