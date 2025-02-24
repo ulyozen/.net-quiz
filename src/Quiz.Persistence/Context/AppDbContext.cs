@@ -23,7 +23,7 @@ public class AppDbContext : IdentityDbContext<UserEntity>
     
     public DbSet<TemplateEntity> Templates { get; set; }
     
-    public DbSet<TemplateTagEntity> TemplateTags { get; set; }
+    public DbSet<TemplateTag> TemplateTags { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {

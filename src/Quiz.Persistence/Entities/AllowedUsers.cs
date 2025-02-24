@@ -2,7 +2,7 @@ using Quiz.Core.Abstractions;
 
 namespace Quiz.Persistence.Entities;
 
-public class AllowedUsers : IManyToManyEntity
+public class AllowedUsers : IManyToMany
 {
     public string UserId { get; set; }
     

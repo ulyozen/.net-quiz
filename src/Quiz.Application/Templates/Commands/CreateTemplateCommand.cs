@@ -19,9 +19,11 @@ public class CreateTemplateCommand : IRequest<OperationResult>
     
     public bool IsPublic { get; set; }
     
+    public DateTime CreatedAt { get; set; }
+    
     public List<string>? Tags { get; set; }
     
     public List<string>? AllowedUsers { get; set; }
     
-    public DateTime CreatedAt { get; set; }
+    
 }

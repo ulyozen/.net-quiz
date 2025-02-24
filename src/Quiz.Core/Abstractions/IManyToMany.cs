@@ -1,3 +1,3 @@
 namespace Quiz.Core.Abstractions;
 
-public interface IManyToManyEntity;
+public interface IManyToMany;

@@ -103,6 +103,8 @@ public class AuthRepository : IAuthRepository
         
         await _context.RefreshTokens.AddAsync(refreshTokenEntity);
         
+        await _context.SaveChangesAsync();
+        
         return OperationResult.SuccessResult();
     }
     
@@ -118,6 +120,8 @@ public class AuthRepository : IAuthRepository
         existingToken.UpdateRefreshToken(user, newRefreshToken, tokenLifetime);
         
         _context.RefreshTokens.Update(existingToken);
+        
+        await _context.SaveChangesAsync();
         
         return OperationResult.SuccessResult();
     }
@@ -141,8 +145,13 @@ public class AuthRepository : IAuthRepository
     {
         var result = await _context.RefreshTokens.FirstOrDefaultAsync(rt => rt.Token == refreshToken);
         
-        return result is null 
-            ? OperationResult.Failure(DomainErrors.Auth.RefreshTokenNotFound) 
-            : OperationResult.SuccessResult();
+        if (result == null)
+            return OperationResult.Failure(DomainErrors.Auth.RefreshTokenNotFound);
+        
+        result.IsRevoked = true;
+        
+        await _context.SaveChangesAsync();
+        
+        return OperationResult.SuccessResult();
     }
 }

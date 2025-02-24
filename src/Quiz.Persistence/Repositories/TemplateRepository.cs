@@ -86,7 +86,8 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
             .Include(t => t.AllowedUsers)
             .FirstOrDefaultAsync(t => t.Id == template.Id);
         
-        if (existingTemplate is null) return OperationResult.Failure("Template not found");
+        if (existingTemplate is null) 
+            return OperationResult.Failure(DomainErrors.Template.TemplateNotFound);
 
         await ApplyTemplateUpdatesAsync(existingTemplate, template);
         
@@ -99,9 +100,12 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
     {
         var existingTemplate = await context.Templates.FindAsync(templateId);
         
-        if (existingTemplate is null) return OperationResult.Failure("Template not found");
+        if (existingTemplate is null) 
+            return OperationResult.Failure(DomainErrors.Template.TemplateNotFound);
         
         context.Templates.Remove(existingTemplate);
+        
+        await context.SaveChangesAsync();
         
         return OperationResult.SuccessResult();
     }

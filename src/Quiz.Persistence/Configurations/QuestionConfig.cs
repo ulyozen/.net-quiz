@@ -13,23 +13,21 @@ public class QuestionConfig : IEntityTypeConfiguration<QuestionEntity>
         builder.HasKey(q => q.Id);
         
         builder.Property(q => q.Title)
-            .HasMaxLength(255)
+            .HasMaxLength(500)
             .IsRequired();
         
-        builder.HasOne(q => q.QuestionType)
-            .WithMany(qt => qt.Questions)
-            .HasForeignKey(q => q.QuestionTypeId)
-            .OnDelete(DeleteBehavior.Restrict);
+        builder.Property(q => q.QuestionType)
+            .HasConversion<string>();
         
         builder.HasOne(q => q.Template)
-            .WithMany(t => t.Questions)
+            .WithMany(q => q.Questions)
             .HasForeignKey(q => q.TemplateId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        builder.HasIndex(q => q.QuestionTypeId)
-            .HasDatabaseName("IX_QuestionTypeId");
+            .OnDelete(DeleteBehavior.Restrict);
         
-        builder.HasIndex(q => q.TemplateId)
-            .HasDatabaseName("IX_TemplateId");
+        builder.Property(q => q.Options)
+            .HasColumnType("jsonb");
+        
+        builder.Property(q => q.CorrectAnswers)
+            .HasColumnType("jsonb");
     }
 }

@@ -1,8 +1,9 @@
 namespace Quiz.Persistence.Entities;
 
-public class QuestionTypeEntity : BaseEntity
+public enum QuestionTypeEntity
 {
-    public int ValueType { get; set; }
-    
-    public List<QuestionEntity> Questions { get; set; }
+    SingleChoice = 1,
+    MultipleChoice = 2,
+    OpenText = 3,
+    Boolean = 4
 }

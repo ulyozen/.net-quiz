@@ -4,9 +4,9 @@ using Quiz.Persistence.Entities;
 
 namespace Quiz.Persistence.Configurations;
 
-public class TemplateTagConfig : IEntityTypeConfiguration<TemplateTagEntity>
+public class TemplateTagConfig : IEntityTypeConfiguration<TemplateTag>
 {
-    public void Configure(EntityTypeBuilder<TemplateTagEntity> builder)
+    public void Configure(EntityTypeBuilder<TemplateTag> builder)
     {
         builder.ToTable("TemplateTags");
         

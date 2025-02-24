@@ -2,7 +2,7 @@ using Quiz.Core.Abstractions;
 
 namespace Quiz.Persistence.Entities;
 
-public class TemplateTagEntity : IManyToManyEntity
+public class TemplateTag : IManyToMany
 {
     public string TemplateId { get; set; }
     

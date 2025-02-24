@@ -2,8 +2,8 @@ namespace Quiz.Core.DomainEnums;
 
 public enum QuestionType
 {
-    SingleLine = 1,
-    MultiLine = 2,
-    Number = 3,
-    Checkbox = 4
+    SingleChoice = 1,
+    MultipleChoice = 2,
+    OpenText = 3,
+    Boolean = 4
 }

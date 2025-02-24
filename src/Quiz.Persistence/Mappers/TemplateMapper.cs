@@ -56,9 +56,9 @@ public static class TemplateMapper
         };
     }
     
-    public static IEnumerable<TemplateTagEntity> MapToTemplateTag(this List<TagEntity> tags, TemplateEntity templateEntity)
+    public static IEnumerable<TemplateTag> MapToTemplateTag(this List<TagEntity> tags, TemplateEntity templateEntity)
     {
-        return tags.Select(t => new TemplateTagEntity
+        return tags.Select(t => new TemplateTag
         {
             TemplateId = templateEntity.Id,
             TagId = t.Id,

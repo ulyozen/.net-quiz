@@ -230,7 +230,7 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
         /// <param name="id">The unique identifier of the template.</param>
         /// <returns>Returns an HTTP response with the list of submissions or an error message.</returns>
         [HttpGet("{id}/submissions")]
-        [ProducesResponseType(typeof(Submission), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<Submission>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
