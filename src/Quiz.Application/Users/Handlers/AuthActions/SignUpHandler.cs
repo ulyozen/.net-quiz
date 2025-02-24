@@ -1,6 +1,7 @@
 using MediatR;
 using Quiz.Application.Abstractions;
 using Quiz.Application.Common;
+using Quiz.Application.Mappers;
 using Quiz.Application.Users.Commands.AuthActions;
 using Quiz.Application.Users.Dtos;
 using Quiz.Core.Repositories;

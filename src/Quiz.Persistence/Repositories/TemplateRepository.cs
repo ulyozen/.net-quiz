@@ -26,26 +26,24 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
             : OperationResult<Template>.SuccessResult(template.MapToTemplate());
     }
     
-    public async Task<IEnumerable<Template>> GetByUserIdAsync(string userId)
+    public async Task<PaginationResult<Template>> GetTemplatesAsync(int page, int pageSize)
     {
-        return (await context.Templates
-            .Where(t => t.AuthorId == userId)
-            .ToListAsync())
-            .MapToTemplates();
-    }
-    
-    public async Task<IEnumerable<Template>> GetPublicTemplatesAsync(int page, int pageSize, bool isPublic = true)
-    {
-        return (await context.Templates
-            .Where(t => t.IsPublic == isPublic)
+        var totalCount = await context.Templates.CountAsync();
+        
+        var templates = await context.Templates
+            .Include(t => t.TemplateTags)
+                .ThenInclude(t => t.Tag)
             .OrderByDescending(t => t.CreatedAt)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
-            .ToListAsync())
-            .MapToTemplates();
+            .ToListAsync();
+
+        var asd = templates.MapToIntro();
+        
+        return PaginationResult<Template>.Create(asd, totalCount, page, pageSize);
     }
     
-    public async Task<IEnumerable<Template>> GetPopularTemplatesAsync(int countTemp = 5)
+    public async Task<IEnumerable<Template>> GetPopularTemplatesAsync(int totalTemp = 5)
     {
         var templates = await context.Templates
             .Include(t => t.TemplateTags)
@@ -60,11 +58,11 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
                     SubmissionCount = submission.Count()
                 })
             .OrderByDescending(t => t.SubmissionCount)
-            .Take(countTemp)
+            .Take(totalTemp)
             .Select(t => t.Template)
             .ToListAsync();
         
-        return templates.MapToPopular();
+        return templates.MapToIntro();
     }
     
     public async Task<OperationResult> AddAsync(Template template)
@@ -146,7 +144,6 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
     {
         await context.Questions.AddRangeAsync(templateEntity.Questions);
     }
-    
     private async Task AddTemplateTagsAsync(TemplateEntity templateEntity, Template template)
     {
         var tags = template.TemplateMetadata.Tags;

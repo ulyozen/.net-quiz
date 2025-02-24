@@ -33,10 +33,10 @@ public static class TemplateMapper
     {
         return command.Questions.Select(q =>
         {
-            var title = q.Title;
-            var type = ParseQuestionType(q.Type);
+            var title   = q.Title;
+            var type    = ParseQuestionType(q.Type);
             var options = q.Options;
-            var answer = q.CorrectAnswers;
+            var answer  = q.CorrectAnswers;
 
             if (!AreAnswersValid(type, options, answer))
                 throw new ArgumentException($"Invalid answers for question type: {type}");
@@ -49,12 +49,12 @@ public static class TemplateMapper
     {
         return new PopularTemplate
         {
-            TemplateId = template.Id,
-            Title = template.TemplateMetadata.Title,
+            TemplateId  = template.Id,
+            Title       = template.TemplateMetadata.Title,
             Description = template.TemplateMetadata.Description,
-            Topic = template.TemplateMetadata.Topic,
-            IsPublic = template.TemplateMetadata.IsPublic,
-            Tags = template.TemplateMetadata.Tags
+            Topic       = template.TemplateMetadata.Topic,
+            IsPublic    = template.TemplateMetadata.IsPublic,
+            Tags        = template.TemplateMetadata.Tags
         };
     }
     

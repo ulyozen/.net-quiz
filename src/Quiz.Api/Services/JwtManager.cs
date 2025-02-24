@@ -6,6 +6,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Quiz.Application.Abstractions;
 using Quiz.Application.Common;
+using Quiz.Application.Mappers;
 using Quiz.Application.Users.Dtos;
 using Quiz.Core.Abstractions;
 using Quiz.Core.Common;

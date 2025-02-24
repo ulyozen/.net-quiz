@@ -1,11 +1,10 @@
-using Quiz.Application.Users.Commands;
 using Quiz.Application.Users.Commands.AuthActions;
 using Quiz.Application.Users.Dtos;
 using Quiz.Core.Common;
 using Quiz.Core.Entities;
 using Quiz.Core.ValueObjects;
 
-namespace Quiz.Application.Common;
+namespace Quiz.Application.Mappers;
 
 public static class UserMapper
 {
@@ -18,9 +17,9 @@ public static class UserMapper
     {
         return new UserResponse
         {
-            Id = user.Id,
+            Id    = user.Id,
             Email = user.Email.Value,
-            Role = user.Role
+            Role  = user.Role
         };
     }
     
@@ -35,10 +34,10 @@ public static class UserMapper
     {
         return new UsersResponse
         {
-            Id = user.Id,
-            Username = user.Username,
-            Email = user.Email.Value,
-            Role = user.Role,
+            Id        = user.Id,
+            Username  = user.Username,
+            Email     = user.Email.Value,
+            Role      = user.Role,
             IsBlocked = user.IsBlocked
         };
     }

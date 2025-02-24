@@ -29,4 +29,9 @@ public static class DomainErrors
         public const string TemplateIdRequired = "Template ID cannot be empty.";
         public const string TemplateNotFound   = "Template not found.";
     }
+    
+    public static class BlobStorage
+    {
+        public const string FileIsEmpty = "File is empty or missing.";
+    }
 }

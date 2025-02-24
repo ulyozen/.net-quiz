@@ -7,11 +7,9 @@ public interface ITemplateRepository
 {
     Task<OperationResult<Template>> GetByIdAsync(string templateId);
     
-    Task<IEnumerable<Template>> GetByUserIdAsync(string userId);
+    Task<PaginationResult<Template>> GetTemplatesAsync(int page, int pageSize);
     
-    Task<IEnumerable<Template>> GetPublicTemplatesAsync(int page, int pageSize, bool isPublic = true);
-    
-    Task<IEnumerable<Template>> GetPopularTemplatesAsync(int countTemp = 5);
+    Task<IEnumerable<Template>> GetPopularTemplatesAsync(int totalTemp = 5);
     
     Task<OperationResult> AddAsync(Template template);
     

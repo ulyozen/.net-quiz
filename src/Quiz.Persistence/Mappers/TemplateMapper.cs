@@ -37,9 +37,9 @@ public static class TemplateMapper
             questions);
     }
     
-    public static List<Template> MapToPopular(this IEnumerable<TemplateEntity> entities)
+    public static List<Template> MapToIntro(this IEnumerable<TemplateEntity> entities)
     {
-        return entities.Select(MapToPopular).ToList();
+        return entities.Select(MapToIntro).ToList();
     }
     
     public static void UpdateFieldsFrom(this TemplateEntity entity, Template template)
@@ -88,7 +88,7 @@ public static class TemplateMapper
         });
     }
     
-    private static Template MapToPopular(this TemplateEntity entity)
+    private static Template MapToIntro(this TemplateEntity entity)
     {
         return Template.Restore(entity.Id, entity.MapToPopularTempMeta());
     }

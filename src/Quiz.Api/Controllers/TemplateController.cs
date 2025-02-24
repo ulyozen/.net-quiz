@@ -24,7 +24,6 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
         /// <code>GET /templates?page=1&amp;pageSize=10</code> <br/><br/>
         /// <strong>Query Parameters:</strong> <br/>
         /// <ul>
-        ///     <li><strong>search</strong> (optional) → Filters templates by name or description.</li>
         ///     <li><strong>page</strong> (optional) → Specifies the page number for pagination.</li>
         ///     <li><strong>pageSize</strong> (optional) → Specifies the number of templates per page.</li>
         /// </ul>
