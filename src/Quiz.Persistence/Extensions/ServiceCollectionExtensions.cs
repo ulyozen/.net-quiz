@@ -16,13 +16,13 @@ public static class ServiceCollectionExtensions
     {
         services.AddIdentityCore<UserEntity>(options =>
             {
-                options.Password.RequiredLength = 1;
-                options.Password.RequireDigit = false;
+                options.Password.RequiredLength         = 1;
+                options.Password.RequireDigit           = false;
                 options.Password.RequireNonAlphanumeric = false;
-                options.Password.RequireUppercase = false;
-                options.Password.RequireLowercase = false;
+                options.Password.RequireUppercase       = false;
+                options.Password.RequireLowercase       = false;
                 
-                options.User.RequireUniqueEmail = true;
+                options.User.RequireUniqueEmail      = true;
                 options.SignIn.RequireConfirmedEmail = false;
             })
             .AddRoles<IdentityRole>()

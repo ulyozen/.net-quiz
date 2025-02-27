@@ -6,7 +6,6 @@ using Quiz.Persistence.Extensions;
 using Quiz.Redis.Extensions;
 using Quiz.Serilog.Extensions;
 using Serilog;
-using FluentValidation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 

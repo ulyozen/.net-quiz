@@ -6,7 +6,7 @@ namespace Quiz.Application.Templates.Queries;
 
 public class SearchTemplatesQuery :IRequest<PaginationResult<TemplateDto>>
 {
-    public string? Query { get; set; }
+    public string Query { get; set; } = string.Empty;
     
     public int Page { get; set; } = 1;
 
