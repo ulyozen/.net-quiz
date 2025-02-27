@@ -3,4 +3,4 @@ using Quiz.Application.Templates.Dtos;
 
 namespace Quiz.Application.Templates.Queries;
 
-public class GetPopularTemplatesQuery : IRequest<IEnumerable<PopularTemplate>>;
+public class GetPopularTemplatesQuery : IRequest<IList<TemplateDto>>;

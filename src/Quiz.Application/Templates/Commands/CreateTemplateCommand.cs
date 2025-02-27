@@ -23,9 +23,9 @@ public class CreateTemplateCommand : IRequest<OperationResult>
     
     public List<QuestionDto> Questions { get; set; }
     
-    public List<string>? Tags { get; set; }
+    public HashSet<string> Tags { get; set; }
     
-    public List<string>? AllowedUsers { get; set; }
+    public HashSet<string> AllowedUsers { get; set; }
 }
 
 public class QuestionDto

@@ -8,6 +8,8 @@ public class LikeEvent : IDomainEvent
     
     public string UserId { get; private set; }
     
+    public DateTime CreatedAt { get; } = DateTime.UtcNow;
+    
     private LikeEvent(string templateId, string userId)
     {
         TemplateId = templateId;

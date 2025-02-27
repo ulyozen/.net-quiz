@@ -3,33 +3,32 @@ using Quiz.Core.DomainEnums;
 
 namespace Quiz.Core.Entities;
 
-public class Question : BaseEntity
+public class Question : Entity
 {
     public string Title { get; private set; }
     
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public QuestionType QuestionType { get; private set; }
     
-    public List<string>? Options { get; set; }
+    public List<string>? Options { get; private set; }
     
-    public List<string>? CorrectAnswers { get; set; }
+    public List<string>? CorrectAnswers { get; private set; }
     
     private Question(string id, string title, QuestionType questionType, 
-        List<string>? options, List<string>? correctAnswers)
+        List<string>? options, List<string>? correctAnswers) : base(id)
     {
-        Id = id;
-        Title = title;
-        QuestionType = questionType;
-        Options = options;
+        Title          = title;
+        QuestionType   = questionType;
+        Options        = options;
         CorrectAnswers = correctAnswers;
     }
-
-    private Question(string questionId, string title, QuestionType questionType, List<string>? options)
+    
+    private Question(string id, string title, QuestionType questionType, 
+        List<string>? options) : base(id)
     {
-        Id = questionId;
-        Title = title;
+        Title        = title;
         QuestionType = questionType;
-        Options = options;
+        Options      = options;
     }
     
     public static Question Create(string id, string title, QuestionType questionType, 
@@ -38,8 +37,9 @@ public class Question : BaseEntity
         return new Question(id, title, questionType, options, correctAnswers);
     }
     
-    public static Question Restore(string questionId, string title, QuestionType questionType, List<string>? options)
+    public static Question Restore(string id, string title, QuestionType questionType, 
+        List<string>? options)
     {
-        return new Question(questionId, title, questionType, options);
+        return new Question(id, title, questionType, options);
     }
 }

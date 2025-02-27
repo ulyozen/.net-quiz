@@ -8,6 +8,8 @@ public class DislikeEvent : IDomainEvent
     
     public string UserId { get; private set; }
     
+    public DateTime CreatedAt { get; } = DateTime.UtcNow;
+    
     private DislikeEvent(string templateId, string userId)
     {
         TemplateId = templateId;
@@ -15,4 +17,5 @@ public class DislikeEvent : IDomainEvent
     }
     
     public static DislikeEvent Create(string templateId, string userId) => new(templateId, userId);
+    
 }

@@ -20,9 +20,13 @@ public partial class Email
     
     public override string ToString() => Value;
     
-    public override bool Equals(object? obj) => 
-        obj is Email email && Value.Equals(email.Value);
-    
+    public override bool Equals(object? obj)
+    {
+        if (obj is not Email email) return false;
+        
+        return Value.Equals(email.Value);
+    }
+
     public override int GetHashCode() => Value.GetHashCode();
     
     [GeneratedRegex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.Compiled)]

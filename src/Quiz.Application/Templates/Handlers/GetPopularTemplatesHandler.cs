@@ -7,19 +7,19 @@ using Quiz.Core.Repositories;
 
 namespace Quiz.Application.Templates.Handlers;
 
-public class GetPopularTemplatesHandler : IRequestHandler<GetPopularTemplatesQuery, IEnumerable<PopularTemplate>>
+public class GetPopularTemplatesHandler : IRequestHandler<GetPopularTemplatesQuery, IList<TemplateDto>>
 {
     private readonly ITemplateRepository _templateRepository;
-
+    
     public GetPopularTemplatesHandler(ITemplateRepository templateRepository)
     {
         _templateRepository = templateRepository;
     }
     
-    public async Task<IEnumerable<PopularTemplate>> Handle(GetPopularTemplatesQuery request, CancellationToken cancellationToken)
+    public async Task<IList<TemplateDto>> Handle(GetPopularTemplatesQuery request, CancellationToken cancellationToken)
     {
         var result = await _templateRepository.GetPopularTemplatesAsync();
         
-        return result.MapToPopularTemplate();
+        return result.MapToDto();
     }
 }

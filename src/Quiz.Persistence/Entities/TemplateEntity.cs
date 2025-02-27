@@ -28,5 +28,5 @@ public class TemplateEntity : FullAuditEntity
     
     public IList<AllowedUsers> AllowedUsers { get; set; }
     
-    public IList<TemplateTag> TemplateTags { get; set; }
+    public HashSet<TemplateTag> TemplateTags { get; set; }
 }

@@ -9,7 +9,7 @@ public interface ITemplateRepository
     
     Task<PaginationResult<Template>> GetTemplatesAsync(int page, int pageSize);
     
-    Task<IEnumerable<Template>> GetPopularTemplatesAsync(int totalTemp = 5);
+    Task<IList<Template>> GetPopularTemplatesAsync(int totalTemp = 5);
     
     Task<OperationResult> AddAsync(Template template);
     

@@ -4,17 +4,15 @@ using Quiz.Core.ValueObjects;
 
 namespace Quiz.Core.Entities;
 
-public class Template : BaseEntity, IHasDomainEvent
+public class Template : AggregateRoot
 {
-    private readonly List<IDomainEvent> _domainEvents = new();
+    private readonly List<Question> _questions  = new();
     
-    private readonly List<Question> _questions = new();
+    private readonly List<Comment> _comments    = new();
     
-    private readonly List<Comment> _comments = new();
+    private readonly HashSet<Dislike> _dislikes = new();
     
-    private readonly List<Dislike> _dislikes = new();
-    
-    private readonly List<Like> _likes = new();
+    private readonly HashSet<Like> _likes       = new();
     
     public TemplateMetadata TemplateMetadata { get; private set; }
     
@@ -30,69 +28,55 @@ public class Template : BaseEntity, IHasDomainEvent
     
     public IReadOnlyList<Question> Questions => _questions;
     
-    public IReadOnlyList<Comment> Comments => _comments;
+    public IReadOnlyList<Comment> Comments   => _comments;
     
-    public IReadOnlyList<Dislike> Dislikes => _dislikes;
+    public IReadOnlySet<Dislike> Dislikes    => _dislikes;
     
-    public IReadOnlyList<Like> Likes => _likes;
+    public IReadOnlySet<Like> Likes          => _likes;
+
+    public Template(string id) : base(id) { }
     
-    private Template(string templateId) => Id = templateId;
-    
-    private Template(string templateId, List<Question> questions)
+    private Template(string id, List<Question> questions) : base(id)
     { 
-        Id = templateId;
-        
         _questions.AddRange(questions);
     } 
     
-    private Template(TemplateMetadata metadata, string authorId, string authorName, string imageUrl, 
-        DateTime createdAt, List<Question> questions)
+    private Template(string id, TemplateMetadata metadata, string authorId, string authorName, string imageUrl, 
+        DateTime createdAt, List<Question> questions) : base(id)
     {
         TemplateMetadata = metadata;
-        AuthorId = authorId;
-        AuthorName = authorName;
-        ImageUrl = imageUrl;
-        CreatedAt = createdAt;
+        AuthorId         = authorId;
+        AuthorName       = authorName;
+        ImageUrl         = imageUrl;
+        CreatedAt        = createdAt;
         
-        _questions = questions;
+        _questions       = questions;
         
-        _domainEvents.Add(TemplateEvent.Create(metadata.Title));
+        RaiseDomainEvent(TemplateEvent.Create(metadata.Title));
     }
     
     public void LikeTemplate(string templateId, string userId)
     {
-        var like = _likes.Find(l => l.UserId == userId);
-        if (like == null)
-        {
-            _likes.Add(Like.Create(templateId, userId));
-        }
-        else
-        {
-            _likes.Remove(like);
-        }
+        var like = Like.Create(templateId, userId);
         
-        _domainEvents.Add(LikeEvent.Create(userId, templateId));
+        if (!_likes.Add(like)) _likes.Remove(like);
+        
+        RaiseDomainEvent(LikeEvent.Create(templateId, userId));
     }
     
     public void DislikeTemplate(string templateId, string userId)
     {
-        var dislike = _dislikes.FirstOrDefault(l => l.UserId == userId);
-        if (dislike == null)
-        {
-            _dislikes.Add(Dislike.Create(templateId, userId));
-        }
-        else
-        {
-            _dislikes.Remove(dislike);
-        }
+        var dislike = Dislike.Create(templateId, userId);
         
-        _domainEvents.Add(DislikeEvent.Create(userId, templateId));
+        if (!_dislikes.Add(dislike)) _dislikes.Remove(dislike);
+        
+        RaiseDomainEvent(DislikeEvent.Create(templateId, userId));
     }
     
     public void UpdateTemplate(TemplateMetadata metadata)
     {
         TemplateMetadata = metadata;
-        UpdatedAt = DateTime.UtcNow;
+        UpdatedAt        = DateTime.UtcNow;
     }
     
     public void AddQuestion(Question question)
@@ -111,24 +95,20 @@ public class Template : BaseEntity, IHasDomainEvent
     {
         _comments.Add(comment);
         
-        _domainEvents.Add(CommentEvent.Create(Id, comment.UserId, comment.Content));
+        RaiseDomainEvent(CommentEvent.Create(Id, comment.UserId, comment.Content));
     }
     
     public void RemoveComment(Comment comment)
     {
         _comments.Remove(comment);
         
-        _domainEvents.Add(CommentEvent.Create(Id, comment.UserId, comment.Content));
+        RaiseDomainEvent(CommentEvent.Create(Id, comment.UserId, comment.Content));
     }
     
-    public IReadOnlyCollection<IDomainEvent> GetDomainEvents() => _domainEvents;
-    
-    public void ClearDomainEvents() => _domainEvents.Clear();
-    
-    public static Template Create(TemplateMetadata metadata, string authorId, string authorName, 
+    public static Template Create(string id, TemplateMetadata metadata, string authorId, string authorName, 
         string imageUrl, DateTime createdAt, List<Question> questions)
     {
-        return new Template(metadata, authorId, authorName, imageUrl, createdAt, questions);
+        return new Template(id, metadata, authorId, authorName, imageUrl, createdAt, questions);
     }
     
     public static Template Restore(string templateId, TemplateMetadata metadata)
@@ -145,11 +125,11 @@ public class Template : BaseEntity, IHasDomainEvent
         return new Template(templateId, questions)
         {
             TemplateMetadata = metadata,
-            AuthorId = authorId,
-            AuthorName = authorName,
-            ImageUrl = imageUrl,
-            CreatedAt = createdAt,
-            UpdatedAt = updatedAt,
+            AuthorId         = authorId,
+            AuthorName       = authorName,
+            ImageUrl         = imageUrl,
+            CreatedAt        = createdAt,
+            UpdatedAt        = updatedAt,
         };
     }
 }

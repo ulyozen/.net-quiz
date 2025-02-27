@@ -12,7 +12,7 @@ public class OperationResult
     {
         Success = success;
         Message = errors.FirstOrDefault() ?? string.Empty;
-        Errors = errors;
+        Errors  = errors;
     }
     
     public static OperationResult SuccessResult() => new(true, []);

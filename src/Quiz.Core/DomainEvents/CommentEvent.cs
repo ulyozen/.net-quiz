@@ -15,8 +15,8 @@ public class CommentEvent : IDomainEvent
     private CommentEvent(string templateId, string userId, string text)
     {
         TemplateId = templateId;
-        UserId = userId;
-        Text = text;
+        UserId     = userId;
+        Text       = text;
     }
     
     public static CommentEvent Create(string templateId, string userId, string text)

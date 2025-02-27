@@ -1,10 +1,10 @@
 using MediatR;
+using Quiz.Application.Templates.Dtos;
 using Quiz.Core.Common;
-using Quiz.Core.Entities;
 
 namespace Quiz.Application.Templates.Queries;
 
-public class GetTemplatesQuery : IRequest<PaginationResult<Template>>
+public class GetTemplatesQuery : IRequest<PaginationResult<TemplateDto>>
 {
     public int Page { get; set; } = 1;
 

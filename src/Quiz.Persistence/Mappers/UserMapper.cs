@@ -5,6 +5,17 @@ namespace Quiz.Persistence.Mappers;
 
 public static class UserMapper
 {
+    public static UserEntity MapToEntity(this User user)
+    {
+        return new UserEntity
+        {
+            Id = user.Id,
+            Name = user.Username, 
+            UserName = user.Email.Value, 
+            Email = user.Email.Value
+        };
+    }
+    
     public static User MapToUser(this UserEntity user)
     {
         return User.Restore(

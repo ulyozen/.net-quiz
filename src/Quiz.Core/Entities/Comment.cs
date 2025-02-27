@@ -1,8 +1,8 @@
 namespace Quiz.Core.Entities;
 
-public class Comment : BaseEntity
+public class Comment : Entity
 {
-    public string TemplateId { get; set; }
+    public string TemplateId { get; set; } 
     
     public string UserId { get; private set; }
     
@@ -12,32 +12,32 @@ public class Comment : BaseEntity
     
     public DateTime CreateAt { get; private set; }
     
-    private Comment() { }
-    
-    private Comment(string templateId, string userId, string username, string content)
+    private Comment(string id, string templateId, string userId, string username, 
+        string content, DateTime createdAt) : base(id)
     {
         TemplateId = templateId;
-        UserId = userId;
+        UserId     = userId;
+        Username   = username;
+        Content    = content;
+        CreateAt   = createdAt;
+    }
+    
+    private Comment(string id, string userId, string username, string content, DateTime createdAt) : base(id)
+    {
+        UserId   = userId;
         Username = username;
-        Content = content;
-        CreateAt = DateTime.UtcNow;
+        Content  = content;
+        CreateAt = createdAt;
     }
     
-    public static Comment Create(string templateId, string userId, string username, string text)
+    public static Comment Create(string id, string templateId, string userId, 
+        string username, string text, DateTime createdAt)
     {
-        return new Comment(templateId, userId, username, text);
+        return new Comment(id, templateId, userId, username, text, createdAt);
     }
     
-    public static Comment Restore(string id, string userId, string username, 
-        string text, DateTime createdAt)
+    public static Comment Restore(string id, string userId, string username, string text, DateTime createdAt)
     {
-        return new Comment
-        {
-            Id = id,
-            UserId = userId,
-            Username = username,
-            Content = text,
-            CreateAt = createdAt
-        };
+        return new Comment(id, userId, username, text, createdAt);
     }
 }

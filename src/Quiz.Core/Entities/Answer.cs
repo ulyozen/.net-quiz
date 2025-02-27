@@ -11,7 +11,7 @@ public class Answer<T> : IAnswer
     private Answer(string questionId, T value)
     {
         QuestionId = questionId;
-        Value = value;
+        Value      = value;
     }
     
     public static Answer<T> Create(string questionId, T value) => new(questionId, value);

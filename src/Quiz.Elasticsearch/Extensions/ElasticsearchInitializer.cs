@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Quiz.Elasticsearch.Common;
+using Quiz.Elasticsearch.Config;
 
 namespace Quiz.Elasticsearch.Extensions;
 
@@ -13,7 +14,9 @@ public class ElasticsearchInitializer : BackgroundService
     
     private const int RetryIntervalMinutes = 2;
     
-    public ElasticsearchInitializer(IServiceScopeFactory scopeFactory, ILogger<ElasticsearchInitializer> logger)
+    public ElasticsearchInitializer(
+        IServiceScopeFactory scopeFactory, 
+        ILogger<ElasticsearchInitializer> logger)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
@@ -24,7 +27,7 @@ public class ElasticsearchInitializer : BackgroundService
         while (!stoppingToken.IsCancellationRequested)
         {
             using var scope = _scopeFactory.CreateScope();
-            var indexManager = scope.ServiceProvider.GetService<ElasticsearchIndexManager>();
+            var indexManager = scope.ServiceProvider.GetService<IndexManager>();
             
             if (indexManager is null)
             {

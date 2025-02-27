@@ -7,7 +7,6 @@ public static class DomainErrors
         public const string UserNotFound         = "User not found.";
         public const string UserBlocked          = "User is blocked.";
         public const string UserAlreadyBlocked   = "User already is blocked.";
-        public const string UserUnblocked        = "User is unblocked.";
         public const string UserAlreadyUnblocked = "User Already is unblocked.";
         public const string UserHasRole          = "User already has a role.";
         public const string RoleNotFound         = "Role not found.";

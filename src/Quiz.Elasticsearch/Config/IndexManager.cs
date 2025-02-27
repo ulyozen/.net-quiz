@@ -2,22 +2,21 @@ using Elastic.Clients.Elasticsearch;
 using Elastic.Clients.Elasticsearch.IndexManagement;
 using Elastic.Clients.Elasticsearch.Mapping;
 using Microsoft.Extensions.Logging;
-using Quiz.Core.Entities;
-using Template = Quiz.Core.Entities.Template;
+using Quiz.Elasticsearch.Entities;
 
-namespace Quiz.Elasticsearch.Common;
+namespace Quiz.Elasticsearch.Config;
 
-public class ElasticsearchIndexManager
+public class IndexManager
 {
     private readonly ElasticsearchClient _client;
     
-    private readonly ILogger<ElasticsearchIndexManager> _logger;
+    private readonly ILogger<IndexManager> _logger;
     
     private const string IndexName = "templates";
     
     private const string CustomAnalyzer = "custom_analyzer";
     
-    public ElasticsearchIndexManager(ElasticsearchClient client, ILogger<ElasticsearchIndexManager> logger)
+    public IndexManager(ElasticsearchClient client, ILogger<IndexManager> logger)
     {
         _client = client;
         _logger = logger;
@@ -53,35 +52,17 @@ public class ElasticsearchIndexManager
                     )
                 )
                 .Mappings(m => m
-                    .Properties(new Properties<Template>
+                    .Properties(new Properties<TemplateIndex>
                         {
-                            { "id", new KeywordProperty() },
-                            { "title", new TextProperty { Analyzer = CustomAnalyzer } },
-                            { "description", new TextProperty { Analyzer = CustomAnalyzer } },
-                            { "tags", new KeywordProperty() },
-                            { "topic", new KeywordProperty() },
-                            { "author", new TextProperty() },
-                            {
-                                "questions", new NestedProperty
-                                {
-                                    Properties = new Properties<Question>
-                                    {
-                                        { "title", new TextProperty { Analyzer = CustomAnalyzer } },
-                                        { "description", new TextProperty { Analyzer = CustomAnalyzer } },
-                                    }
-                                } 
-                                
-                            },
-                            {
-                                "comments", new NestedProperty
-                                {
-                                    Properties = new Properties<Comment>
-                                    {
-                                        { "text", new TextProperty { Analyzer = CustomAnalyzer } }
-                                    }
-                                } 
-                                
-                            }
+                            { "templateTitle", new TextProperty { Analyzer = CustomAnalyzer } },
+                            { "templateDescription", new TextProperty { Analyzer = CustomAnalyzer } },
+                            { "templateTopic", new KeywordProperty() },
+                            { "templateTags", new KeywordProperty() },
+                            { "questionTitle", new TextProperty { Analyzer = CustomAnalyzer } },
+                            { "questionDescription", new TextProperty { Analyzer = CustomAnalyzer } },
+                            
+                            { "templateId", new KeywordProperty { Index = false } },
+                            { "templateIsPublic", new BooleanProperty { Index = false } }
                         }
                     )
                 );

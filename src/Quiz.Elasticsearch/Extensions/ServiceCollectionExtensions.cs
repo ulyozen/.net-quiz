@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 using Quiz.Core.Abstractions;
 using Quiz.Core.Repositories;
 using Quiz.Elasticsearch.Common;
+using Quiz.Elasticsearch.Config;
 using Quiz.Elasticsearch.Repositories;
 
 namespace Quiz.Elasticsearch.Extensions;
@@ -16,17 +17,17 @@ public static class ServiceCollectionExtensions
         return services
             .AddSingleton<ISearchRepository, ElasticsearchRepository>()
             .AddHostedService<ElasticsearchInitializer>()
-            .AddSingleton<ElasticsearchIndexManager>()
+            .AddSingleton<IndexManager>()
             .AddSingleton(ConnectElasticsearchClient);
     }
     
     private static ElasticsearchClient ConnectElasticsearchClient(this IServiceProvider provider)
     {
         var option = provider.GetService<IOptions<ElasticsearchOptions>>()!.Value;
-                
+        
         var connectionString = new ElasticsearchClientSettings(BuildUri(option))
             .Authentication(Auth(option));
-                
+        
         return new ElasticsearchClient(connectionString);
     }
 

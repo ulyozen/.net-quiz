@@ -3,30 +3,28 @@ using Quiz.Core.DomainEvents;
 
 namespace Quiz.Core.Entities;
 
-public class Submission : BaseEntity, IHasDomainEvent
+public class Submission : AggregateRoot
 {
-    private readonly List<IDomainEvent> _domainEvents = new();
-
-    private readonly List<IAnswer> _answers;
+    private readonly List<IAnswer> _answers = new();
     
     public string TemplateId { get; private set; }
     
     public string UserId { get; private set; }
     
     public IReadOnlyList<IAnswer> Answers => _answers;
-
-    private Submission(List<IAnswer> answers)
+    
+    private Submission(string id,  List<IAnswer> answers) : base(id)
     {
-        _answers = answers;
+        _answers.AddRange(answers);
     }
     
-    private Submission(string templateId, string userId, List<IAnswer> answers)
+    private Submission(string id, string templateId, string userId, List<IAnswer> answers) : base(id)
     {
         TemplateId = templateId;
-        UserId = userId;
-        _answers = answers;
+        UserId     = userId;
+        _answers   = answers;
         
-        _domainEvents.Add(SubmissionEvent.Create(templateId, userId));
+        RaiseDomainEvent(SubmissionEvent.Create(templateId, userId));
     }
     
     public void AddAnswer<T>(string questionId, T answerText)
@@ -34,21 +32,17 @@ public class Submission : BaseEntity, IHasDomainEvent
         _answers.Add(Answer<T>.Create(questionId, answerText));
     }
     
-    public IReadOnlyCollection<IDomainEvent> GetDomainEvents() => _domainEvents;
-    
-    public void ClearDomainEvents() => _domainEvents.Clear();
-    
-    public static Submission Create(string templateId, string userId, List<IAnswer> answers)
+    public static Submission Create(string id, string templateId, string userId, List<IAnswer> answers)
     {
-        return new Submission(templateId, userId, answers);
+        return new Submission(id, templateId, userId, answers);
     }
-
-    public static Submission Restore(string templateId, string userId, List<IAnswer> answers)
+    
+    public static Submission Restore(string id, string templateId, string userId, List<IAnswer> answers)
     {
-        return new Submission(answers)
+        return new Submission(id, answers)
         {
             TemplateId = templateId,
-            UserId = userId
+            UserId     = userId
         };
     }
 }

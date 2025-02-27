@@ -8,9 +8,9 @@ namespace Quiz.Application.Mappers;
 
 public static class UserMapper
 {
-    public static User MapToUser(this SignUpCommand command)
+    public static User MapToUser(this SignUpCommand command, string userId)
     {
-        return User.Create(command.Username, Email.From(command.Email), command.Password);
+        return User.Create(userId, command.Username, command.Email, command.Password);
     }
     
     public static UserResponse MapToUserResponse(this User user)

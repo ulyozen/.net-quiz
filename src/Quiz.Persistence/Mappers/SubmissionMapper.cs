@@ -22,6 +22,6 @@ public static class SubmissionMapper
 
     private static Submission MapToSubmission(this SubmissionEntity entity)
     {
-        return Submission.Restore(entity.TemplateId, entity.UserId, entity.Answers.MapToAnswers());
+        return Submission.Restore(entity.Id, entity.TemplateId, entity.UserId, entity.Answers.MapToAnswers());
     }
 }

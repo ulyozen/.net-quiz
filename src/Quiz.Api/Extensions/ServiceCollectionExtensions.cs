@@ -12,7 +12,9 @@ using Quiz.Api.Middlewares;
 using Quiz.Api.Services;
 using Quiz.Application.Abstractions;
 using Quiz.Application.Common;
+using Quiz.Application.Services;
 using Quiz.Application.Users.Dtos;
+using Quiz.Core.Abstractions;
 using Quiz.Core.Repositories;
 using Quiz.Persistence.Common;
 using Quiz.Persistence.Repositories;
@@ -35,6 +37,7 @@ public static class ServiceCollectionExtensions
             .AddScoped<ISubmissionRepository, SubmissionRepository>()
             .AddScoped<IRefreshTokenCookieManager, RefreshTokenCookieManager>()
             .AddScoped<IClaimsTransformation, UserClaimsTransformation>()
+            .AddScoped<IDomainEventDispatcher, DomainEventDispatcher>()
             .AddTransient<UserBlockMiddleware>();
     }
     

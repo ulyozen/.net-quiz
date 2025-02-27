@@ -51,12 +51,12 @@ public static class TemplateMapper
         entity.ImageUrl    = template.ImageUrl;
     }
     
-    public static TemplateEntity MapToEntity(this Template template, string templateId)
+    public static TemplateEntity MapToEntity(this Template template)
     {
         var questions = template.Questions.Select(question => new QuestionEntity
         {
             Id             = question.Id,
-            TemplateId     = templateId,
+            TemplateId     = template.Id,
             Title          = question.Title,
             QuestionType   = question.QuestionType,
             Options        = question.Options is null ? null : JsonSerializer.Serialize(question.Options),
@@ -65,7 +65,7 @@ public static class TemplateMapper
         
         return new TemplateEntity
         {
-            Id          = templateId,
+            Id          = template.Id,
             AuthorId    = template.AuthorId,
             AuthorName  = template.AuthorName,
             Title       = template.TemplateMetadata.Title,
@@ -95,24 +95,28 @@ public static class TemplateMapper
     
     private static TemplateMetadata MapToPopularTempMeta(this TemplateEntity entity)
     {
+        var tempTags = entity.TemplateTags.Select(tt => tt.Tag.Name).ToHashSet();
+        
         return TemplateMetadata.Create(
             entity.Title,
             entity.Description,
             entity.Topic,
             entity.IsPublic,
-            entity.TemplateTags.Select(tt => tt.Tag.Name).ToList());
+            tempTags);
     }
     
     private static TemplateMetadata MapToTemplateMetadata(this TemplateEntity entity)
     {
+        var tempTags     = entity.TemplateTags.Select(tt => tt.Tag.Name).ToHashSet();
+        var allowedUsers = entity.IsPublic 
+            ? [] : entity.AllowedUsers.Select(au => au.UserId).ToHashSet();
+        
         return TemplateMetadata.Create(
             entity.Title,
             entity.Description,
             entity.Topic,
             entity.IsPublic,
-            entity.TemplateTags.Select(tt => tt.Tag.Name).ToList(),
-            entity.IsPublic
-                ? []
-                : entity.AllowedUsers.Select(au => au.UserId).ToList());
+            tempTags,
+            allowedUsers);
     }
 }

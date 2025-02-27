@@ -10,16 +10,27 @@ namespace Quiz.Application.Templates.Handlers;
 public class CreateTemplateHandler : IRequestHandler<CreateTemplateCommand, OperationResult>
 {
     private readonly ITemplateRepository _templateRepository;
+    private readonly ISearchRepository _searchRepository;
     private readonly IGuidFactory _guidFactory;
 
-    public CreateTemplateHandler(ITemplateRepository templateRepository, IGuidFactory guidFactory)
+    public CreateTemplateHandler(
+        ITemplateRepository templateRepository, 
+        ISearchRepository searchRepository, 
+        IGuidFactory guidFactory)
     {
         _templateRepository = templateRepository;
+        _searchRepository = searchRepository;
         _guidFactory = guidFactory;
     }
     
     public async Task<OperationResult> Handle(CreateTemplateCommand command, CancellationToken cancellationToken)
     {
-        return await _templateRepository.AddAsync(command.MapToTemplate(_guidFactory));
+        var template = command.MapToTemplate(_guidFactory);
+        
+        var result = await _templateRepository.AddAsync(template);
+
+        if (result.Success) await _searchRepository.AddTemplateAsync(template);
+
+        return result;
     }
 }

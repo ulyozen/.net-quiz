@@ -268,7 +268,7 @@ public class TemplateController(IMediator mediator, ILogger<AdminController> log
         /// <returns>Returns an HTTP response with the list of popular templates.</returns>
         [HttpGet("popular")]
         [AllowAnonymous]
-        [ProducesResponseType(typeof(IEnumerable<PopularTemplate>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(IEnumerable<TemplateDto>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetPopularTemplates()
         {

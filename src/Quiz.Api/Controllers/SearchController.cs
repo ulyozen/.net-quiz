@@ -10,7 +10,9 @@ namespace Quiz.Api.Controllers;
 public class SearchController(IMediator mediator) : ControllerBase
 {
     [HttpGet("templates")]
-    public async Task<IActionResult> SearchTemplates([FromQuery] SearchTemplatesQuery query)
+    [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> GetTemplates([FromBody] SearchTemplatesQuery query)
     {
         var result = await mediator.Send(query);
         return Ok(result);

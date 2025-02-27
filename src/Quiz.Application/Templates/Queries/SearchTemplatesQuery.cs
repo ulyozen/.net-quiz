@@ -1,18 +1,14 @@
 using MediatR;
+using Quiz.Application.Templates.Dtos;
 using Quiz.Core.Common;
-using Quiz.Core.Entities;
 
 namespace Quiz.Application.Templates.Queries;
 
-public class SearchTemplatesQuery :IRequest<PaginationResult<Template>>
+public class SearchTemplatesQuery :IRequest<PaginationResult<TemplateDto>>
 {
     public string? Query { get; set; }
     
-    public List<string>? Tags { get; set; }
-    
-    public string? Topic { get; set; }
-    
-    public int Page { get; set; }
-    
-    public int PageSize { get; set; }
+    public int Page { get; set; } = 1;
+
+    public int PageSize { get; set; } = 10;
 }

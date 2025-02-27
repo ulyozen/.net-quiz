@@ -58,7 +58,7 @@ public class AuthRepository : IAuthRepository
         if (emailExist != null) 
             return OperationResult<User>.Failure(DomainErrors.Auth.EmailAlreadyExists);
         
-        var userEntity = new UserEntity { Name = user.Username, UserName = user.Email.Value, Email = user.Email.Value };
+        var userEntity = user.MapToEntity();
         
         var result = await _userManager.CreateAsync(userEntity, user.Password);
         if (!result.Succeeded)

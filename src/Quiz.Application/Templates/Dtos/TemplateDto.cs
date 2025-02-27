@@ -1,6 +1,6 @@
 namespace Quiz.Application.Templates.Dtos;
 
-public class PopularTemplate
+public class TemplateDto
 {
     public string TemplateId { get; set; }
     
@@ -12,5 +12,5 @@ public class PopularTemplate
     
     public bool IsPublic { get; set; }
     
-    public IReadOnlyList<string> Tags { get; set; }
+    public HashSet<string> Tags { get; set; }
 }

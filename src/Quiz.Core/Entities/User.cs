@@ -5,10 +5,8 @@ using Quiz.Core.ValueObjects;
 
 namespace Quiz.Core.Entities;
 
-public class User : BaseEntity, IHasDomainEvent
+public class User : AggregateRoot
 {
-    private readonly List<IDomainEvent> _domainEvents = new();
-    
     public string Username { get; private set; }
     
     public Email Email { get; private set; }
@@ -21,23 +19,26 @@ public class User : BaseEntity, IHasDomainEvent
     
     public bool RememberMe { get; private set; }
     
-    private User(string userId)
-    {
-        Id = userId;
-        
-        _domainEvents.Add(UserLoggedInEvent.Create(userId));
-    }
-
-    private User(string username, Email email, string password, string role, bool rememberMe)
+    private User(string id) : base(id) { }
+    
+    private User(string id, string username, Email email, string password, string role) : base(id)
     {
         Username = username;
-        Email = email;
+        Email    = email;
         Password = password;
-        Role = role;
-        IsBlocked = false;
+        Role     = role;
+        
+        RaiseDomainEvent(UserCreatedEvent.Create(email));
+    }
+    
+    private User(string id, string username, string email, bool isBlocked, bool rememberMe) : base(id)
+    {
+        Username   = username;
+        Email      = Email.From(email);
+        IsBlocked  = isBlocked;
         RememberMe = rememberMe;
         
-        _domainEvents.Add(UserCreatedEvent.Create(email));
+        RaiseDomainEvent(UserLoggedInEvent.Create(id));
     }
     
     public void Block() => IsBlocked = true;
@@ -46,34 +47,26 @@ public class User : BaseEntity, IHasDomainEvent
     
     public void ChangeRole(string role) => Role = role;
     
-    public IReadOnlyCollection<IDomainEvent> GetDomainEvents() => _domainEvents;
-    
-    public void ClearDomainEvents() => _domainEvents.Clear();
-    
-    public static User Create(string username, Email email, string password, bool rememberMe = false)
+    public static User Create(string id, string username, string email, string password)
     {
-        return new User(username, email, password, GetRole(email), rememberMe);
+        var emailValue = Email.From(email);
+        
+        return new User(id, username, emailValue, password, GetRole(emailValue));
     }
     
     public static User Restore(string userId, string username, string email, bool isBlocked, bool rememberMe)
     {
-        return new User(userId)
-        {
-            Username = username,
-            Email = Email.From(email),
-            IsBlocked = isBlocked,
-            RememberMe = rememberMe
-        };
+        return new User(userId, username, email, isBlocked, rememberMe);
     }
     
     public static User Restore(string userId, string username, string email, bool isBlocked, List<string> role)
     {
         return new User(userId)
         {
-            Username = username,
-            Email = Email.From(email),
+            Username  = username,
+            Email     = Email.From(email),
             IsBlocked = isBlocked,
-            Role = string.Join(", ", role)
+            Role      = string.Join(", ", role)
         };
     }
     

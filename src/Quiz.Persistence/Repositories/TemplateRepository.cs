@@ -43,7 +43,7 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
         return PaginationResult<Template>.Create(asd, totalCount, page, pageSize);
     }
     
-    public async Task<IEnumerable<Template>> GetPopularTemplatesAsync(int totalTemp = 5)
+    public async Task<IList<Template>> GetPopularTemplatesAsync(int totalTemp = 5)
     {
         var templates = await context.Templates
             .Include(t => t.TemplateTags)
@@ -133,7 +133,7 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
     
     private async Task<TemplateEntity> AddTemplateAsync(Template template)
     {
-        var templateEntity = template.MapToEntity(guidFactory.Create());
+        var templateEntity = template.MapToEntity();
         
         await context.Templates.AddAsync(templateEntity);
         
@@ -146,7 +146,7 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
     }
     private async Task AddTemplateTagsAsync(TemplateEntity templateEntity, Template template)
     {
-        var tags = template.TemplateMetadata.Tags;
+        var tags = template.TemplateMetadata.Tags.ToArray();
         
         var existingTags = await context.Tags
             .Where(t => tags.Contains(t.Name))
@@ -159,7 +159,7 @@ public class TemplateRepository(AppDbContext context, IGuidFactory guidFactory) 
         await context.TemplateTags.AddRangeAsync(templateTags);
     }
     
-    private async Task AddTagsAsync(IReadOnlyList<string> tags, List<TagEntity> existingTags)
+    private async Task AddTagsAsync(IReadOnlyCollection<string> tags, List<TagEntity> existingTags)
     {
         var newTagNames = tags.Except(existingTags.Select(t => t.Name)).ToList();
         
